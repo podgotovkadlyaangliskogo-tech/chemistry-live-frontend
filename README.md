@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chemistry Live — Next.js Frontend 🧪
 
-## Getting Started
+Интерактивная образовательная платформа в формате Kahoot для проведения живых викторин по химии в реальном времени.
 
-First, run the development server:
+## 🚀 Стек технологий
+- **Фреймворк:** [Next.js](https://nextjs.org/) (App Router, Server & Client Components, Route Handlers)
+- **Язык:** TypeScript (строгий режим)
+- **Стилизация:** [Tailwind CSS](https://tailwindcss.com/) (светлая теплая дизайн-система)
+- **База данных и Realtime:** [Supabase](https://supabase.com/) (`@supabase/supabase-js`, `@supabase/ssr`)
+- **Анимации:** [Framer Motion](https://www.framer.com/motion/) и `canvas-confetti`
+- **Иконки:** [Lucide React](https://lucide.dev/)
+- **QR-коды:** `qrcode.react`
+- **Валидация:** [Zod](https://zod.dev/)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## 🎨 Дизайн-система (Light Theme)
+Платформа строго спроектирована в теплой светлой палитре:
+- **Фон:** `#FAFAF8` (теплый белый)
+- **Поверхности карточек:** `#FFFFFF`
+- **Границы:** `#E8E5E0`
+- **Текст:** `#1A1A1A` (основной), `#6B7280` (второстепенный)
+- **Акцентные цвета вариантов ответов:**
+  - Вариант A: `#EF4444` (красный треугольник ▲)
+  - Вариант B: `#3B82F6` (синий ромб ◆)
+  - Вариант C: `#EAB308` (желтый круг ●)
+  - Вариант D: `#22C55E` (зеленый квадрат ■)
+
+---
+
+## 📁 Структура проекта
+```
+chemistry-live-frontend/
+├── app/
+│   ├── (public)/              # Публичный лэндинг с информацией и входами
+│   ├── teacher/
+│   │   ├── login/             # Аутентификация преподавателя
+│   │   ├── dashboard/         # Список активных и завершенных сессий, создание игры
+│   │   └── session/[sessionId]/
+│   │       ├── lobby/         # Комната ожидания: большой PIN, QR-код, список игроков, блокировка
+│   │       ├── game/          # Экран ведущего: вопрос, таймер, распределение ответов, объяснения
+│   │       └── results/       # Финальный подиум 1/2/3 места и общая таблица
+│   ├── play/
+│   │   ├── page.tsx           # Вход ученика по 6-значному PIN и никнейму
+│   │   └── [sessionId]/
+│   │       ├── waiting/       # Экран ожидания старта с автопереходом по Realtime
+│   │       ├── game/          # Экран ученика: 4 большие кнопки, таймер, результат ответа
+│   │       └── results/       # Индивидуальный итог ученика и пьедестал
+│   └── api/                   # Route Handlers (сессии, игроки, ответы, лидерборд)
+├── frontend/
+│   ├── components/            # UI, Quiz, Teacher, Student, Leaderboard, Podium
+│   ├── hooks/                 # useGameSession, usePlayerSession, useRealtime, useTimer, useLeaderboard
+│   └── lib/                   # Supabase Browser Client, Realtime helper, форматирование
+├── backend/
+│   ├── repositories/          # QuizRepository, PlayerRepository, GameRepository
+│   ├── services/              # GameService, RoomService, PlayerService, ScoringService
+│   ├── security/              # Auth middleware
+│   ├── validation/            # Zod validation helpers
+│   └── lib/                   # Supabase Admin Service Role client
+└── shared/
+    ├── types/                 # TypeScript интерфейсы игры, вопросов, игроков
+    ├── constants/             # Константы таймингов, баллов, цветов
+    └── schemas/               # Схемы валидации Zod
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ⚡ Формула начисления баллов
+Начисление баллов стимулирует скорость и точность ответа:
+```typescript
+earned_points = base_points * speed_multiplier + streak_bonus
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+// где speed_multiplier изменяется от 1.0 (мгновенный ответ) до 0.5 (ответ на исходе таймера):
+speed_multiplier = clamp(0.5 + 0.5 * (1 - response_ms / time_limit_ms), 0.5, 1.0)
+```
+Серия правильных ответов (Streak) добавляет до +500 дополнительных бонусных очков.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🔧 Запуск проекта локально
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Установите зависимости:
+```bash
+npm install
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Создайте файл `.env.local` на основе `.env.example`:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_publishable_key_here
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_secret_key_here
+```
 
-## Deploy on Vercel
+3. Запустите сервер разработки:
+```bash
+npm run dev
+```
+Откройте браузер по адресу `http://localhost:3000`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. Сборка для продакшена:
+```bash
+npm run build
+npm run start
+```
