@@ -11,12 +11,13 @@ export class GameRepository {
     pinCode: string,
     hostId?: string | null
   ): Promise<GameSession> {
+    const cleanHostId = hostId && hostId.trim() !== '' ? hostId : null;
     const { data, error } = await this.client
       .from('game_sessions')
       .insert({
         quiz_id: quizId,
         pin_code: pinCode,
-        host_id: hostId || null,
+        host_id: cleanHostId,
         status: 'lobby',
         current_question_index: 0,
       })

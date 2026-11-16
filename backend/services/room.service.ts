@@ -23,11 +23,12 @@ export class RoomService {
     let targetQuizId = quizId;
 
     if (!targetQuizId) {
-      const defaultQuiz = await QuizRepository.getDefaultQuiz();
-      if (!defaultQuiz) {
-        throw new Error('В базе данных нет доступных квизов');
+      try {
+        const defaultQuiz = await QuizRepository.getDefaultQuiz();
+        targetQuizId = defaultQuiz?.id || 'a0000000-0000-0000-0000-000000000001';
+      } catch {
+        targetQuizId = 'a0000000-0000-0000-0000-000000000001';
       }
-      targetQuizId = defaultQuiz.id;
     }
 
     const pin = await this.generateUniquePin();

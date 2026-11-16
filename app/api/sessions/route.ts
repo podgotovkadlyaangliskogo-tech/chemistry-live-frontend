@@ -10,8 +10,8 @@ export async function POST(request: Request) {
 
     try {
       const body = await request.json();
-      quizId = body.quiz_id;
-      hostId = body.host_id;
+      quizId = body?.quiz_id ? String(body.quiz_id).trim() : undefined;
+      hostId = body?.host_id ? String(body.host_id).trim() : undefined;
     } catch {
       // Body is optional
     }
