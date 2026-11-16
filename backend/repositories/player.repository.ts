@@ -2,7 +2,9 @@ import { createAdminClient } from '../lib/supabase.server';
 import { Player, PlayerAnswer, LeaderboardEntry } from '@/shared/types/player.types';
 
 export class PlayerRepository {
-  private static client = createAdminClient();
+  private static get client() {
+    return createAdminClient();
+  }
 
   static async createPlayer(sessionId: string, nickname: string): Promise<Player> {
     const { data, error } = await this.client

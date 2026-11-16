@@ -2,7 +2,9 @@ import { createAdminClient } from '../lib/supabase.server';
 import { Quiz, Question, QuestionWithOptions, QuestionWithCorrectAnswer, AnswerOption, ClientAnswerOption } from '@/shared/types/quiz.types';
 
 export class QuizRepository {
-  private static client = createAdminClient();
+  private static get client() {
+    return createAdminClient();
+  }
 
   static async getQuizById(quizId: string): Promise<Quiz | null> {
     const { data, error } = await this.client

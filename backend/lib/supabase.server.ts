@@ -2,11 +2,11 @@ import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 
 export function createAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://pnrlulybmpiutugxrkkj.supabase.co';
   const serviceKey =
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    'placeholder-key-for-build-time-evaluation';
+    'sb_publishable_bMckhKSjIWXA0NY3izdK9A_sf5tL0Jo';
 
   return createClient(url, serviceKey, {
     auth: {

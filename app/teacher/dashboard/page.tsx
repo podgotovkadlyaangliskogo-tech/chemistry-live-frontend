@@ -128,13 +128,14 @@ export default function TeacherDashboardPage() {
 
           <div className="shrink-0">
             <Button
+              variant="outline"
               size="lg"
               onClick={handleCreateSession}
               isLoading={isCreating}
-              className="bg-white text-blue-700 hover:bg-blue-50 font-bold border-none shadow-md w-full sm:w-auto"
+              className="bg-white text-blue-700 hover:bg-blue-50 font-black border-none shadow-md w-full sm:w-auto hover:text-blue-800"
             >
-              <PlusCircle className="w-5 h-5 mr-2" />
-              Создать новую сессию
+              <PlusCircle className="w-5 h-5 mr-2 text-blue-600" />
+              <span>Создать новую сессию</span>
             </Button>
           </div>
         </div>

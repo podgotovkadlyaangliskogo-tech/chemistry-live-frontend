@@ -2,7 +2,9 @@ import { createAdminClient } from '../lib/supabase.server';
 import { GameSession, GameStatus, GameResult } from '@/shared/types/game.types';
 
 export class GameRepository {
-  private static client = createAdminClient();
+  private static get client() {
+    return createAdminClient();
+  }
 
   static async createSession(
     quizId: string,
