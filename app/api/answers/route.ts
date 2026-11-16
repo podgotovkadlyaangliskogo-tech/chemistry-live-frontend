@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { PlayerService } from '@/backend/services/player.service';
 import { submitAnswerSchema } from '@/shared/schemas/validation.schemas';
