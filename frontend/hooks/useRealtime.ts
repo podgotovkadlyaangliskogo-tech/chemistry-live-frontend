@@ -10,16 +10,24 @@ export function useRealtime(sessionId: string | null | undefined, events: Realti
   useEffect(() => {
     if (!sessionId) return;
 
-    const sub = subscribeToGame(sessionId, {
-      onSessionUpdate: (s) => eventsRef.current.onSessionUpdate?.(s),
-      onPlayerJoined: (p) => eventsRef.current.onPlayerJoined?.(p),
-      onPlayerLeft: (id) => eventsRef.current.onPlayerLeft?.(id),
-      onPlayerUpdated: (p) => eventsRef.current.onPlayerUpdated?.(p),
-      onAnswerSubmitted: (a) => eventsRef.current.onAnswerSubmitted?.(a),
-    });
+    let sub: { unsubscribe: () => void } | null = null;
+
+    try {
+      sub = subscribeToGame(sessionId, {
+        onSessionUpdate: (s) => eventsRef.current.onSessionUpdate?.(s),
+        onPlayerJoined: (p) => eventsRef.current.onPlayerJoined?.(p),
+        onPlayerLeft: (id) => eventsRef.current.onPlayerLeft?.(id),
+        onPlayerUpdated: (p) => eventsRef.current.onPlayerUpdated?.(p),
+        onAnswerSubmitted: (a) => eventsRef.current.onAnswerSubmitted?.(a),
+      });
+    } catch (err) {
+      console.warn('Realtime subscription failed:', err);
+    }
 
     return () => {
-      sub.unsubscribe();
+      if (sub) {
+        sub.unsubscribe();
+      }
     };
   }, [sessionId]);
 }

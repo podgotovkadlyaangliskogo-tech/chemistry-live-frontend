@@ -16,7 +16,9 @@ export function subscribeToGame(
   handlers: RealtimeGameEvents
 ): { channel: RealtimeChannel; unsubscribe: () => void } {
   const supabase = createClient();
-  const channelName = `game_room_${sessionId}`;
+  // Unique channel name per subscriber to prevent collisions when multiple hooks subscribe simultaneously
+  const uniqueId = Math.random().toString(36).substring(2, 9);
+  const channelName = `game_room_${sessionId}_${uniqueId}`;
 
   const channel = supabase
     .channel(channelName)
@@ -98,7 +100,11 @@ export function subscribeToGame(
   return {
     channel,
     unsubscribe: () => {
-      supabase.removeChannel(channel);
+      try {
+        supabase.removeChannel(channel);
+      } catch (err) {
+        console.warn('Error removing channel:', err);
+      }
     },
   };
 }
