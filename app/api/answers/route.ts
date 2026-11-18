@@ -10,6 +10,7 @@ export async function POST(request: Request) {
 
     if (!validated.success) {
       const errorMsg = validated.error.issues.map((i) => i.message).join(', ');
+      console.warn('Answers validation warning:', errorMsg, body);
       return NextResponse.json({ success: false, error: errorMsg }, { status: 400 });
     }
 
@@ -29,7 +30,8 @@ export async function POST(request: Request) {
       data: result,
     });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Ошибка отправки ответа';
+    const message = err instanceof Error ? err.message : 'Ошибка обработки ответа';
+    console.error('Answer submission error:', message);
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }
 }

@@ -36,23 +36,6 @@ export class PlayerService {
       throw new Error('Сессия не найдена');
     }
 
-    if (session.status !== 'question_active') {
-      throw new Error('Прием ответов на данный вопрос закрыт');
-    }
-
-    if (session.current_question_id !== params.questionId) {
-      throw new Error('Ответ отправлен не на текущий активный вопрос');
-    }
-
-    const alreadyAnswered = await PlayerRepository.hasPlayerAnswered(
-      params.sessionId,
-      params.playerId,
-      params.questionId
-    );
-    if (alreadyAnswered) {
-      throw new Error('Вы уже ответили на этот вопрос');
-    }
-
     const player = await PlayerRepository.getPlayerById(params.playerId);
     if (!player) {
       throw new Error('Игрок не найден');
@@ -63,22 +46,54 @@ export class PlayerService {
       throw new Error('Вопрос не найден');
     }
 
-    // BUG 7 fix: reject answers submitted after the time limit (+ 2 s grace period)
+    // 1. Идемпотентность: если игрок уже ответил на этот вопрос (повторный клик или ретрай)
+    const alreadyAnswered = await PlayerRepository.hasPlayerAnswered(
+      params.sessionId,
+      params.playerId,
+      params.questionId
+    );
+    if (alreadyAnswered) {
+      const answers = await PlayerRepository.getAnswersByPlayer(params.sessionId, params.playerId);
+      const existing = answers.find((a) => a.question_id === params.questionId);
+      return {
+        is_correct: existing?.is_correct ?? false,
+        points_awarded: existing?.points_awarded ?? 0,
+        new_score: player.score,
+        new_streak: existing?.streak_at_answer ?? player.streak,
+        correct_option_id: question.correct_option_id,
+      };
+    }
+
+    // 2. Если раунд уже не активен (учитель уже переключил на разбор или следующий вопрос)
+    if (session.status !== 'question_active' || session.current_question_id !== params.questionId) {
+      return {
+        is_correct: false,
+        points_awarded: 0,
+        new_score: player.score,
+        new_streak: 0,
+        correct_option_id: question.correct_option_id,
+        closed: true,
+      };
+    }
+
+    // 3. Проверка времени: если ответ задержался из-за сети или таймера, не ломаем игру 400-й ошибкой
+    let safeResponseTime = Math.max(0, params.responseTimeMs);
+    const isCorrect = question.correct_option_id === params.selectedOptionId;
+
     if (session.question_start_time) {
       const startTime = new Date(session.question_start_time).getTime();
       const elapsed = Date.now() - startTime;
-      const timeLimitMs = question.time_limit_seconds * 1000 + 2000; // 2 s grace period
+      const timeLimitMs = question.time_limit_seconds * 1000 + 3000; // 3 сек grace period на сетевой лаг
       if (elapsed > timeLimitMs) {
-        throw new Error('Время для ответа истекло');
+        // Опоздавший ответ: засчитываем правильность, но без бонуса скорости
+        safeResponseTime = question.time_limit_seconds * 1000;
       }
     }
-
-    const isCorrect = question.correct_option_id === params.selectedOptionId;
 
     const { points, newStreak } = computeAnswerPoints(
       isCorrect,
       question.points,
-      params.responseTimeMs,
+      safeResponseTime,
       question.time_limit_seconds,
       player.streak
     );
@@ -95,7 +110,7 @@ export class PlayerService {
       questionId: params.questionId,
       selectedOptionId: params.selectedOptionId,
       isCorrect,
-      responseTimeMs: params.responseTimeMs,
+      responseTimeMs: safeResponseTime,
       pointsAwarded: points,
       streakAtAnswer: newStreak,
     });

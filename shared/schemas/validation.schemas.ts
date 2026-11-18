@@ -20,24 +20,20 @@ export const joinRoomSchema = z.object({
 });
 
 export const submitAnswerSchema = z.object({
-  session_id: z.string().uuid('Некорректный UUID сессии'),
-  player_id: z.string().uuid('Некорректный UUID игрока'),
-  question_id: z.string().uuid('Некорректный UUID вопроса'),
-  selected_option_id: z.string().uuid('Некорректный UUID варианта ответа'),
-  response_time_ms: z
-    .number()
-    .int('Время ответа должно быть целым числом')
-    .min(0, 'Время ответа не может быть отрицательным')
-    .max(120000, 'Время ответа не может превышать 120 секунд'),
+  session_id: z.string().min(1, 'Некорректный ID сессии'),
+  player_id: z.string().min(1, 'Некорректный ID игрока'),
+  question_id: z.string().min(1, 'Некорректный ID вопроса'),
+  selected_option_id: z.string().min(1, 'Некорректный ID варианта ответа'),
+  response_time_ms: z.coerce.number().min(0).max(600000).transform(val => Math.round(val)),
 });
 
 export const createSessionSchema = z.object({
-  quiz_id: z.string().uuid('Некорректный UUID квиза'),
-  host_id: z.string().uuid('Некорректный UUID хоста').optional().nullable(),
+  quiz_id: z.string().min(1, 'Некорректный ID квиза').optional(),
+  host_id: z.string().min(1, 'Некорректный ID хоста').optional().nullable(),
 });
 
 export const sessionControlSchema = z.object({
-  session_id: z.string().uuid('Некорректный UUID сессии'),
+  session_id: z.string().min(1, 'Некорректный ID сессии'),
 });
 
 export type JoinRoomInput = z.infer<typeof joinRoomSchema>;
