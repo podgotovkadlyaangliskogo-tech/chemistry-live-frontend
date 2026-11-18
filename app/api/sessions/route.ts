@@ -28,9 +28,31 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const sessions = await GameRepository.getSessionsByHost();
+    // BUG 4 fix: filter sessions by authenticated host so we don't expose all sessions
+    let hostId: string | undefined;
+    try {
+      const { createServerClient } = await import('@supabase/ssr');
+      const { cookies } = await import('next/headers');
+      const cookieStore = await cookies();
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            getAll() { return cookieStore.getAll(); },
+            setAll() { /* read-only in route handler */ },
+          },
+        }
+      );
+      const { data: { user } } = await supabase.auth.getUser();
+      hostId = user?.id;
+    } catch {
+      // If auth resolution fails, fall through without filtering (TODO: enforce auth)
+    }
+
+    const sessions = await GameRepository.getSessionsByHost(hostId);
     return NextResponse.json({ success: true, data: { sessions } });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Ошибка загрузки сессий';

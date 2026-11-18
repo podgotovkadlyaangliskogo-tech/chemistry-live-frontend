@@ -11,16 +11,14 @@ import { ErrorMessage } from '@/frontend/components/ui/ErrorMessage';
 import { PlayerList } from '@/frontend/components/teacher/PlayerList';
 import { useGameSession } from '@/frontend/hooks/useGameSession';
 import {
-  Atom,
   Play,
   Lock,
   Unlock,
-  Share2,
-  Users,
   Copy,
   Check,
   ArrowLeft,
   Sparkles,
+  ExternalLink
 } from 'lucide-react';
 
 interface LobbyPageProps {
@@ -97,7 +95,7 @@ export default function TeacherLobbyPage({ params }: LobbyPageProps) {
 
   if (isLoading && !session) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAFAF8]">
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A]">
         <LoadingSpinner label="Подготовка комнаты викторины..." size="lg" />
       </div>
     );
@@ -105,52 +103,51 @@ export default function TeacherLobbyPage({ params }: LobbyPageProps) {
 
   if (error || !session) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#FAFAF8]">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#0A0E1A]">
         <ErrorMessage message={error || 'Сессия не найдена'} />
         <Link href="/teacher/dashboard" className="mt-4">
-          <Button variant="outline">Вернуться в дашборд</Button>
+          <Button variant="secondary">Вернуться в дашборд</Button>
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+    <div className="min-h-screen bg-[#0A0E1A] text-white flex flex-col">
       {/* Top Navbar */}
-      <header className="bg-white border-b border-[#E8E5E0] sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-30 backdrop-blur-xl bg-[#0A0E1A]/85 border-b border-white/[0.08]">
+        <div className="max-w-6xl mx-auto px-4 h-18 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
               href="/teacher/dashboard"
-              className="text-stone-500 hover:text-stone-800 p-2 rounded-lg hover:bg-stone-100 transition-colors"
+              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-base text-stone-900">Лобби сессии</span>
-              <span className="text-xs font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+              <span className="font-black text-base text-white">Лобби сессии</span>
+              <span className="text-xs font-mono font-bold text-[#4F8EF7] bg-[#4F8EF7]/15 border border-[#4F8EF7]/30 px-2.5 py-0.5 rounded-lg">
                 PIN: {session.pin_code}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={handleToggleLock}
               isLoading={isLocking}
-              className="border-stone-300"
             >
               {isLocked ? (
                 <>
-                  <Lock className="w-3.5 h-3.5 mr-1.5 text-amber-600" />
-                  Комната закрыта
+                  <Lock className="w-4 h-4 mr-1.5 text-amber-400" />
+                  <span>Комната закрыта</span>
                 </>
               ) : (
                 <>
-                  <Unlock className="w-3.5 h-3.5 mr-1.5 text-stone-600" />
-                  Комната открыта
+                  <Unlock className="w-4 h-4 mr-1.5 text-slate-400" />
+                  <span>Комната открыта</span>
                 </>
               )}
             </Button>
@@ -160,7 +157,7 @@ export default function TeacherLobbyPage({ params }: LobbyPageProps) {
               onClick={handleStart}
               isLoading={isStarting}
               disabled={players.length === 0}
-              className="bg-emerald-600 hover:bg-emerald-700 font-bold focus:ring-emerald-500 shadow-sm"
+              className="bg-gradient-to-r from-[#39D98A] to-[#10B981] hover:from-[#2ecc71] hover:to-[#059669] shadow-[0_0_20px_rgba(57,217,138,0.4)]"
             >
               <Play className="w-4 h-4 mr-1.5" />
               <span>Начать игру ({players.length})</span>
@@ -171,54 +168,54 @@ export default function TeacherLobbyPage({ params }: LobbyPageProps) {
 
       {/* Main Container */}
       <main className="max-w-6xl w-full mx-auto px-4 py-8 flex-1 flex flex-col gap-8">
-        {/* Big PIN and QR Code Banner */}
+        {/* Big PIN & QR Code Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
           {/* Large PIN Display */}
-          <Card className="md:col-span-2 p-8 flex flex-col justify-between bg-gradient-to-br from-white via-white to-blue-50/30 border-blue-100">
+          <div className="md:col-span-2 p-8 sm:p-10 flex flex-col justify-between rounded-3xl bg-[#10172A]/90 border border-white/[0.08] shadow-[0_12px_45px_rgba(0,0,0,0.5)]">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 mb-4">
-                <Sparkles className="w-3.5 h-3.5 text-blue-500" />
-                Подключение участников
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 bg-[#4F8EF7]/15 text-[#4F8EF7] border border-[#4F8EF7]/30">
+                <Sparkles className="w-3.5 h-3.5" />
+                Подключение участников к игре
               </div>
-              <h2 className="text-sm font-bold text-stone-500 uppercase tracking-wider mb-2">
+              <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-400 mb-2">
                 Перейдите на страницу входа и введите PIN:
               </h2>
-              <div className="text-5xl sm:text-7xl font-mono font-black text-stone-900 tracking-wider my-3 select-all">
+              <div className="text-5xl sm:text-7xl font-mono font-black text-white tracking-widest my-3 select-all drop-shadow-[0_0_35px_rgba(79,142,247,0.5)]">
                 {session.pin_code}
               </div>
-              <p className="text-sm text-stone-600 font-medium">
-                Адрес для учеников: <span className="font-bold text-blue-600">/play</span>
+              <p className="text-sm font-medium text-slate-400">
+                Ссылка для учеников:{' '}
+                <span className="font-bold text-[#4F8EF7]">/play</span>
               </p>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-stone-100 flex flex-wrap items-center gap-3">
+            <div className="mt-8 pt-6 border-t border-white/[0.08] flex flex-wrap items-center gap-3">
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={handleCopyLink}
-                className="border-stone-300"
               >
                 {copied ? (
                   <>
-                    <Check className="w-4 h-4 mr-1.5 text-emerald-600" />
-                    Ссылка скопирована!
+                    <Check className="w-4 h-4 mr-1.5 text-emerald-400" />
+                    <span>Ссылка скопирована!</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-4 h-4 mr-1.5" />
-                    Скопировать прямую ссылку
+                    <span>Скопировать прямую ссылку с PIN</span>
                   </>
                 )}
               </Button>
             </div>
-          </Card>
+          </div>
 
           {/* QR Code */}
-          <Card className="p-6 flex flex-col items-center justify-center text-center bg-white border-stone-200">
-            <h3 className="text-sm font-bold text-stone-800 mb-4">
+          <div className="p-6 sm:p-8 flex flex-col items-center justify-center text-center rounded-3xl bg-[#10172A]/90 border border-white/[0.08] shadow-[0_12px_45px_rgba(0,0,0,0.5)]">
+            <h3 className="text-sm font-bold text-white mb-4">
               Сканируйте камерой смартфона:
             </h3>
-            <div className="p-4 bg-white rounded-2xl border-2 border-stone-200 shadow-xs inline-block">
+            <div className="p-4 bg-white rounded-2xl shadow-xl inline-block border-2 border-[#4F8EF7]/40">
               {joinUrl && (
                 <QRCodeSVG
                   value={joinUrl}
@@ -228,10 +225,10 @@ export default function TeacherLobbyPage({ params }: LobbyPageProps) {
                 />
               )}
             </div>
-            <p className="text-xs text-stone-400 mt-4">
-              Быстрое подключение без ввода PIN-кода
+            <p className="text-xs text-slate-400 mt-4">
+              Мгновенный вход без ручного ввода PIN
             </p>
-          </Card>
+          </div>
         </div>
 
         {/* Players Waiting List */}

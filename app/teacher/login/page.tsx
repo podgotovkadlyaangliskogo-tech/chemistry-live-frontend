@@ -8,7 +8,7 @@ import { Input } from '@/frontend/components/ui/Input';
 import { Button } from '@/frontend/components/ui/Button';
 import { ErrorMessage } from '@/frontend/components/ui/ErrorMessage';
 import { createClient } from '@/frontend/lib/supabase.client';
-import { Atom, GraduationCap, ArrowLeft, ShieldCheck, Sparkles } from 'lucide-react';
+import { GraduationCap, ArrowLeft, ShieldCheck, Sparkles } from 'lucide-react';
 
 export default function TeacherLoginPage() {
   const router = useRouter();
@@ -46,7 +46,6 @@ export default function TeacherLoginPage() {
         }
       }
 
-      // Store teacher session flag locally
       sessionStorage.setItem('chemistry_teacher_auth', 'true');
       router.push('/teacher/dashboard');
     } catch (err: unknown) {
@@ -62,24 +61,24 @@ export default function TeacherLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-12 bg-[#FAFAF8]">
+    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-12 bg-[#0A0E1A]">
       <Link
         href="/"
-        className="inline-flex items-center text-sm font-semibold text-stone-500 hover:text-stone-800 mb-6 transition-colors"
+        className="inline-flex items-center text-xs sm:text-sm font-bold text-slate-400 hover:text-white mb-6 transition-colors group"
       >
-        <ArrowLeft className="w-4 h-4 mr-1.5" />
-        На главную
+        <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+        <span>Вернуться на главную</span>
       </Link>
 
-      <Card className="max-w-md w-full p-8 bg-white border-stone-200 shadow-md">
+      <Card className="max-w-md w-full p-6 sm:p-9 bg-[#10172A]/90 border border-white/[0.08] shadow-[0_12px_45px_rgba(0,0,0,0.5)]">
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center mx-auto mb-4 shadow-sm">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#4F8EF7] to-[#6366F1] text-white flex items-center justify-center mx-auto mb-4 shadow-[0_0_24px_rgba(79,142,247,0.4)]">
             <GraduationCap className="w-7 h-7" />
           </div>
-          <h1 className="text-2xl font-black text-stone-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
             Вход для учителя
           </h1>
-          <p className="text-xs text-stone-500 mt-1.5">
+          <p className="text-xs sm:text-sm text-slate-400 mt-1.5">
             Управление сессиями и проведение викторин в Chemistry Live
           </p>
         </div>
@@ -111,17 +110,17 @@ export default function TeacherLoginPage() {
             type="submit"
             size="lg"
             isLoading={isLoading}
-            className="w-full mt-2 font-bold shadow-sm"
+            className="w-full mt-2 font-bold shadow-[0_0_20px_rgba(79,142,247,0.35)]"
           >
-            Войти в аккаунт
+            Войти в систему
           </Button>
         </form>
 
         <div className="relative my-6 text-center">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-stone-200" />
+            <div className="w-full border-t border-white/[0.08]" />
           </div>
-          <span className="relative px-3 bg-white text-xs text-stone-400 font-medium">
+          <span className="relative px-3 bg-[#10172A] text-xs text-slate-500 font-semibold uppercase tracking-wider">
             или
           </span>
         </div>
@@ -131,14 +130,14 @@ export default function TeacherLoginPage() {
           variant="secondary"
           size="lg"
           onClick={handleDemoLogin}
-          className="w-full font-bold border-stone-200 text-stone-800 hover:bg-stone-100"
+          className="w-full font-bold text-white hover:bg-white/[0.08]"
         >
-          <Sparkles className="w-4 h-4 mr-2 text-amber-500" />
+          <Sparkles className="w-4 h-4 mr-2 text-amber-400" />
           Быстрый демо-вход преподавателя
         </Button>
 
-        <div className="mt-6 pt-4 border-t border-stone-100 flex items-center justify-center gap-2 text-xs text-stone-400">
-          <ShieldCheck className="w-4 h-4 text-emerald-500" />
+        <div className="mt-8 pt-5 border-t border-white/[0.08] flex items-center justify-center gap-2 text-xs text-slate-400">
+          <ShieldCheck className="w-4 h-4 text-emerald-400" />
           <span>Безопасная аутентификация через Supabase</span>
         </div>
       </Card>

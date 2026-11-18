@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Card } from '../ui/Card';
 import { CheckCircle2, XCircle, Flame, Clock } from 'lucide-react';
 import { formatScore } from '@/frontend/lib/formatting';
 
@@ -15,68 +14,77 @@ export interface AnswerResultProps {
 
 export const AnswerResult: React.FC<AnswerResultProps> = ({
   isRevealed,
-  isCorrect,
+  isCorrect = false,
   pointsAwarded = 0,
   streak = 0,
   newScore,
 }) => {
+  // If answered but question is not revealed yet
   if (!isRevealed) {
     return (
-      <Card className="text-center p-6 bg-white border-stone-200 shadow-sm animate-in fade-in">
-        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
-          <Clock className="w-6 h-6 animate-pulse" />
+      <div className="w-full text-center p-6 rounded-3xl bg-[#10172A]/90 backdrop-blur-xl border border-white/[0.08] shadow-xl animate-in fade-in duration-300">
+        <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-[#4F8EF7]/15 border border-[#4F8EF7]/30 flex items-center justify-center">
+          <Clock className="w-6 h-6 text-[#4F8EF7] animate-pulse" />
         </div>
-        <h3 className="text-lg font-bold text-stone-900 mb-1">Ответ принят!</h3>
-        <p className="text-xs text-stone-500">
-          Ждем остальных участников и показ результатов учителем
+        <h3 className="text-lg font-black text-white mb-1">Ответ принят!</h3>
+        <p className="text-xs sm:text-sm text-slate-400">
+          Ждем остальных участников и раскрытие правильного ответа
         </p>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card
-      className={`text-center p-6 border-2 transition-all ${
+    <div
+      className={`w-full text-center p-6 sm:p-7 rounded-3xl backdrop-blur-xl border shadow-xl transition-all duration-300 ${
         isCorrect
-          ? 'bg-emerald-50/70 border-emerald-300 text-emerald-950'
-          : 'bg-rose-50/70 border-rose-300 text-rose-950'
+          ? 'bg-[#39D98A]/10 border-[#39D98A]/40 shadow-[0_0_35px_rgba(57,217,138,0.2)]'
+          : 'bg-[#FF4757]/10 border-[#FF4757]/40 shadow-[0_0_35px_rgba(255,71,87,0.2)]'
       }`}
     >
+      {/* Result Icon */}
       <div className="flex justify-center mb-3">
         {isCorrect ? (
-          <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-            <CheckCircle2 className="w-8 h-8" />
+          <div className="w-16 h-16 rounded-2xl bg-[#39D98A]/20 flex items-center justify-center shadow-[0_0_24px_rgba(57,217,138,0.5)]">
+            <CheckCircle2 className="w-9 h-9 text-[#39D98A]" />
           </div>
         ) : (
-          <div className="w-14 h-14 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
-            <XCircle className="w-8 h-8" />
+          <div className="w-16 h-16 rounded-2xl bg-[#FF4757]/20 flex items-center justify-center shadow-[0_0_24px_rgba(255,71,87,0.5)]">
+            <XCircle className="w-9 h-9 text-[#FF4757]" />
           </div>
         )}
       </div>
 
-      <h3 className="text-2xl font-black mb-1">
-        {isCorrect ? 'Правильный ответ!' : 'Неверный ответ'}
+      {/* Title */}
+      <h3 className="text-2xl sm:text-3xl font-black text-white mb-3">
+        {isCorrect ? 'Точно в цель!' : 'Неверный ответ'}
       </h3>
 
-      <div className="mt-3 flex items-center justify-center gap-3">
+      {/* Points & Streak Badges */}
+      <div className="flex items-center justify-center gap-3 flex-wrap">
         {isCorrect && (
-          <span className="text-lg font-black text-emerald-700 bg-white/90 px-3 py-1 rounded-xl shadow-xs border border-emerald-200">
-            +{formatScore(pointsAwarded)}
+          <span className="text-xl sm:text-2xl font-black font-mono px-4 py-1.5 rounded-2xl bg-[#39D98A]/20 text-[#39D98A] border border-[#39D98A]/30 shadow-[0_0_15px_rgba(57,217,138,0.4)]">
+            +{formatScore(pointsAwarded)} pts
           </span>
         )}
+
         {streak > 1 && (
-          <span className="inline-flex items-center text-xs font-bold text-amber-700 bg-amber-100/80 px-2.5 py-1 rounded-lg">
-            <Flame className="w-4 h-4 mr-1 text-amber-600 fill-amber-500" />
-            Серия {streak}
+          <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-black px-3 py-1.5 rounded-2xl bg-amber-400/15 text-amber-300 border border-amber-400/30">
+            <Flame className="w-4 h-4 text-amber-400 fill-amber-400" />
+            Серия: {streak} подряд
           </span>
         )}
       </div>
 
+      {/* Total Score */}
       {newScore !== undefined && (
-        <p className="mt-4 text-xs font-semibold text-stone-600">
-          Ваш общий счет: <span className="font-bold text-stone-900">{formatScore(newScore)}</span>
+        <p className="mt-4 text-xs sm:text-sm font-semibold text-slate-400">
+          Твой общий счет:{' '}
+          <span className="font-black font-mono text-base text-white ml-1">
+            {formatScore(newScore)}
+          </span>
         </p>
       )}
-    </Card>
+    </div>
   );
 };

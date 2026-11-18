@@ -63,6 +63,16 @@ export class PlayerService {
       throw new Error('Вопрос не найден');
     }
 
+    // BUG 7 fix: reject answers submitted after the time limit (+ 2 s grace period)
+    if (session.question_start_time) {
+      const startTime = new Date(session.question_start_time).getTime();
+      const elapsed = Date.now() - startTime;
+      const timeLimitMs = question.time_limit_seconds * 1000 + 2000; // 2 s grace period
+      if (elapsed > timeLimitMs) {
+        throw new Error('Время для ответа истекло');
+      }
+    }
+
     const isCorrect = question.correct_option_id === params.selectedOptionId;
 
     const { points, newStreak } = computeAnswerPoints(

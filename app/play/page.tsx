@@ -8,7 +8,7 @@ import { Button } from '@/frontend/components/ui/Button';
 import { PinInput } from '@/frontend/components/student/PinInput';
 import { NicknameInput } from '@/frontend/components/student/NicknameInput';
 import { ErrorMessage } from '@/frontend/components/ui/ErrorMessage';
-import { Atom, Zap, ArrowLeft, Sparkles } from 'lucide-react';
+import { Atom, Zap, ArrowLeft, Sparkles, ShieldCheck } from 'lucide-react';
 
 function JoinForm() {
   const router = useRouter();
@@ -65,29 +65,29 @@ function JoinForm() {
 
       router.push(`/play/${session.id}/waiting`);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Ошибка подключения');
+      setError(err instanceof Error ? err.message : 'Ошибка подключения к комнате');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Card className="max-w-md w-full p-6 sm:p-8 bg-white border-stone-200 shadow-md">
-      <div className="text-center mb-6">
-        <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center mx-auto mb-3 shadow-xs">
-          <Atom className="w-6 h-6 animate-spin" style={{ animationDuration: '10s' }} />
+    <Card className="max-w-md w-full p-6 sm:p-9 bg-[#10172A]/90 border border-white/[0.08] shadow-[0_12px_45px_rgba(0,0,0,0.5)]">
+      <div className="text-center mb-7">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#4F8EF7] to-[#39D98A] text-white flex items-center justify-center mx-auto mb-4 shadow-[0_0_24px_rgba(79,142,247,0.4)]">
+          <Atom className="w-7 h-7 animate-spin" style={{ animationDuration: '10s' }} />
         </div>
-        <h1 className="text-2xl font-black text-stone-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
           Вход в викторину
         </h1>
-        <p className="text-xs text-stone-500 mt-1">
-          Введите PIN игры, который отображается на экране учителя
+        <p className="text-xs sm:text-sm text-slate-400 mt-1.5">
+          Введи 6 цифр PIN-кода, отображаемого на экране учителя
         </p>
       </div>
 
       {error && <ErrorMessage message={error} className="mb-6" />}
 
-      <form onSubmit={handleJoin} className="space-y-5">
+      <form onSubmit={handleJoin} className="space-y-6">
         <PinInput
           value={pin}
           onChange={setPin}
@@ -105,16 +105,17 @@ function JoinForm() {
           size="xl"
           isLoading={isLoading}
           disabled={pin.length !== 6 || nickname.trim().length < 2}
-          className="w-full font-black text-base sm:text-lg shadow-sm"
+          className="w-full font-black text-base sm:text-lg shadow-[0_0_25px_rgba(79,142,247,0.4)]"
         >
-          <Zap className="w-5 h-5 mr-2" />
-          Присоединиться к игре
+          <Zap className="w-5 h-5 mr-2 text-amber-300" />
+          <span>Присоединиться к игре</span>
         </Button>
       </form>
 
-      <div className="mt-6 pt-4 border-t border-stone-100 text-center">
-        <p className="text-xs text-stone-400">
-          Присоединяясь, вы соглашаетесь с правилами честной игры
+      <div className="mt-8 pt-5 border-t border-white/[0.08] text-center">
+        <p className="text-xs text-slate-400 flex items-center justify-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+          <span>Мгновенный вход без регистрации и паролей</span>
         </p>
       </div>
     </Card>
@@ -123,16 +124,16 @@ function JoinForm() {
 
 export default function StudentJoinPage() {
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-8 bg-[#FAFAF8]">
+    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-10 bg-[#0A0E1A]">
       <Link
         href="/"
-        className="inline-flex items-center text-sm font-semibold text-stone-500 hover:text-stone-800 mb-6 transition-colors"
+        className="inline-flex items-center text-xs sm:text-sm font-bold text-slate-400 hover:text-white mb-6 transition-colors group"
       >
-        <ArrowLeft className="w-4 h-4 mr-1.5" />
-        На главную
+        <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+        <span>Вернуться на главную</span>
       </Link>
 
-      <Suspense fallback={<Card className="max-w-md w-full p-8 text-center">Загрузка...</Card>}>
+      <Suspense fallback={<Card className="max-w-md w-full p-8 text-center text-slate-400">Загрузка...</Card>}>
         <JoinForm />
       </Suspense>
     </div>

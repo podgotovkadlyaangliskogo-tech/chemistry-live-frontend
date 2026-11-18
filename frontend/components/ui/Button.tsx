@@ -17,31 +17,31 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseClasses =
-    'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98] select-none';
+    'inline-flex items-center justify-center font-bold rounded-2xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0A0E1A] active:scale-[0.98] select-none cursor-pointer';
 
   const sizeClasses = {
-    sm: 'px-3 py-1.5 text-xs',
+    sm: 'px-3.5 py-1.5 text-xs',
     md: 'px-4 py-2.5 text-sm',
-    lg: 'px-6 py-3.5 text-base font-semibold',
-    xl: 'px-8 py-4 text-lg font-bold',
+    lg: 'px-6 py-3.5 text-base',
+    xl: 'px-8 py-4 text-base sm:text-lg',
   };
 
   const variantClasses = {
     primary:
-      'bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow focus:ring-blue-500 border border-blue-700/20',
+      'bg-gradient-to-r from-[#4F8EF7] to-[#6366F1] hover:from-[#3b7fe9] hover:to-[#5558e6] text-white shadow-[0_0_20px_rgba(79,142,247,0.35)] hover:shadow-[0_0_28px_rgba(79,142,247,0.5)] border border-white/10 focus:ring-[#4F8EF7]',
     secondary:
-      'bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 focus:ring-stone-400',
+      'bg-white/[0.06] hover:bg-white/[0.1] text-white border border-white/10 hover:border-white/20 focus:ring-slate-400',
     outline:
-      'bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 focus:ring-blue-500 shadow-sm',
+      'bg-transparent hover:bg-white/[0.05] text-[#4F8EF7] border border-[#4F8EF7]/40 hover:border-[#4F8EF7] focus:ring-[#4F8EF7]',
     danger:
-      'bg-red-600 hover:bg-red-700 text-white shadow-sm hover:shadow focus:ring-red-500',
+      'bg-gradient-to-r from-[#FF4757] to-[#e03040] hover:from-[#e03040] hover:to-[#c42030] text-white shadow-[0_0_20px_rgba(255,71,87,0.35)] border border-white/10 focus:ring-red-500',
     ghost:
-      'bg-transparent hover:bg-stone-100 text-stone-700 focus:ring-stone-300',
+      'bg-transparent hover:bg-white/[0.06] text-slate-300 hover:text-white focus:ring-slate-400',
   };
 
   const disabledClasses =
     disabled || isLoading
-      ? 'opacity-50 cursor-not-allowed pointer-events-none'
+      ? 'opacity-40 cursor-not-allowed pointer-events-none'
       : '';
 
   return (
@@ -52,7 +52,7 @@ export const Button: React.FC<ButtonProps> = ({
     >
       {isLoading ? (
         <>
-          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          <Loader2 className="w-4 h-4 mr-2 animate-spin text-current" />
           <span>Загрузка...</span>
         </>
       ) : (

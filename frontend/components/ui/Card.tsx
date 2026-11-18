@@ -13,13 +13,13 @@ export const Card: React.FC<CardProps> = ({
   const paddingClasses = {
     none: 'p-0',
     sm: 'p-4',
-    md: 'p-6',
-    lg: 'p-8',
+    md: 'p-6 sm:p-7',
+    lg: 'p-8 sm:p-10',
   };
 
   return (
     <div
-      className={`bg-white rounded-2xl border border-stone-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ${paddingClasses[padding]} ${className}`}
+      className={`bg-[#10172A]/90 backdrop-blur-xl rounded-3xl border border-white/[0.08] shadow-[0_10px_35px_rgba(0,0,0,0.35)] ${paddingClasses[padding]} ${className}`}
       {...props}
     >
       {children}

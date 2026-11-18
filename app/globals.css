@@ -1,22 +1,65 @@
 @import "tailwindcss";
 
 :root {
-  --background: #FAFAF8;
-  --surface: #FFFFFF;
-  --border: #E8E5E0;
-  --text-primary: #1A1A1A;
-  --text-secondary: #6B7280;
-  --color-brand-blue: #3B82F6;
-  --color-brand-green: #22C55E;
-  --color-brand-yellow: #EAB308;
-  --color-brand-red: #EF4444;
+  --bg-base: #0A0E1A;
+  --bg-surface: rgba(255,255,255,0.04);
+  --bg-surface-hover: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.1);
+  --text-primary: #F0F4FF;
+  --text-secondary: #8B9ABF;
+  --brand-blue: #4F8EF7;
+  --brand-green: #39D98A;
+  --brand-amber: #FFB800;
+  --brand-red: #FF4757;
 }
 
 body {
-  background-color: #FAFAF8;
-  color: #1A1A1A;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
+  background: var(--bg-base);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(79, 142, 247, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 100%, rgba(57, 217, 138, 0.08) 0%, transparent 50%);
+  min-height: 100dvh;
+  color: var(--text-primary);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* Glass card effect */
+.glass {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Neon glow utility */
+.glow-blue { box-shadow: 0 0 20px rgba(79,142,247,0.4); }
+.glow-green { box-shadow: 0 0 20px rgba(57,217,138,0.4); }
+.glow-amber { box-shadow: 0 0 20px rgba(255,184,0,0.4); }
+.glow-red   { box-shadow: 0 0 20px rgba(255,71,87,0.4); }
+
+/* Animated gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #4F8EF7 0%, #39D98A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Pulsing dot animation */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+.pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* Floating animation for decorative elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-12px) rotate(3deg); }
+  66% { transform: translateY(-6px) rotate(-2deg); }
+}
+.float { animation: float 7s ease-in-out infinite; }
+.float-delay { animation: float 9s ease-in-out infinite 2s; }
+.float-slow { animation: float 11s ease-in-out infinite 1s; }

@@ -15,10 +15,10 @@ export const PlayerList: React.FC<PlayerListProps> = ({
 }) => {
   if (players.length === 0) {
     return (
-      <div className="text-center py-12 px-4 rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50/50">
-        <Users className="w-10 h-10 text-stone-400 mx-auto mb-3" />
-        <h3 className="text-base font-bold text-stone-700">Ожидание игроков...</h3>
-        <p className="text-sm text-stone-500 mt-1 max-w-sm mx-auto">
+      <div className="text-center py-16 px-4 rounded-3xl border-2 border-dashed border-white/10 bg-white/[0.02]">
+        <Users className="w-12 h-12 mx-auto mb-4 text-slate-500" />
+        <h3 className="text-base font-bold text-white mb-1">Ожидание игроков...</h3>
+        <p className="text-sm text-slate-400 max-w-sm mx-auto">
           Ученики могут ввести PIN-код на странице входа или отсканировать QR-код на экране
         </p>
       </div>
@@ -28,8 +28,8 @@ export const PlayerList: React.FC<PlayerListProps> = ({
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-stone-500 flex items-center gap-2">
-          <Users className="w-4 h-4 text-stone-600" />
+        <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <Users className="w-4 h-4 text-[#4F8EF7]" />
           <span>Подключено участников ({players.length})</span>
         </h3>
       </div>
@@ -38,11 +38,14 @@ export const PlayerList: React.FC<PlayerListProps> = ({
         {players.map((player) => (
           <div
             key={player.id}
-            className="flex items-center justify-between p-3 rounded-xl bg-white border border-stone-200/90 shadow-sm hover:shadow transition-all group"
+            className="flex items-center justify-between p-3.5 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl hover:border-[#4F8EF7]/50 hover:bg-white/[0.07] transition-all group shadow-sm"
           >
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
-              <span className="text-sm font-bold text-stone-800 truncate">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="relative shrink-0 flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#39D98A] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#39D98A]" />
+              </span>
+              <span className="text-sm font-bold text-white truncate">
                 {player.nickname}
               </span>
             </div>
@@ -52,7 +55,7 @@ export const PlayerList: React.FC<PlayerListProps> = ({
                 type="button"
                 onClick={() => onKickPlayer(player.id)}
                 title="Исключить игрока"
-                className="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-stone-400 hover:text-red-600 hover:bg-red-50 transition-all shrink-0"
+                className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all shrink-0 cursor-pointer"
               >
                 <UserX className="w-4 h-4" />
               </button>

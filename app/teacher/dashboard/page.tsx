@@ -14,9 +14,9 @@ import {
   PlusCircle,
   BookOpen,
   Sparkles,
-  ArrowLeft,
   RefreshCw,
   LogOut,
+  Layers
 } from 'lucide-react';
 
 export default function TeacherDashboardPage() {
@@ -77,21 +77,21 @@ export default function TeacherDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+    <div className="min-h-screen bg-[#0A0E1A] text-white flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-[#E8E5E0] sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <header className="bg-[#0A0E1A]/85 backdrop-blur-xl border-b border-white/[0.08] sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
-                <Atom className="w-5 h-5 animate-spin" style={{ animationDuration: '10s' }} />
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#4F8EF7] to-[#39D98A] flex items-center justify-center shadow-[0_0_15px_rgba(79,142,247,0.4)]">
+                <Atom className="w-5 h-5 text-white animate-spin" style={{ animationDuration: '12s' }} />
               </div>
-              <span className="font-black text-lg text-stone-900">
-                Chemistry<span className="text-blue-600">Live</span>
+              <span className="font-black text-lg text-white">
+                Chemistry<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4F8EF7] to-[#39D98A]">Live</span>
               </span>
             </Link>
-            <span className="text-xs font-bold text-stone-400">/</span>
-            <span className="text-xs font-bold text-stone-600 bg-stone-100 px-2 py-0.5 rounded-md">
+            <span className="text-slate-600 font-bold hidden sm:inline">/</span>
+            <span className="text-xs font-bold text-slate-300 bg-white/[0.05] border border-white/10 px-2.5 py-1 rounded-lg hidden sm:inline">
               Кабинет преподавателя
             </span>
           </div>
@@ -99,7 +99,7 @@ export default function TeacherDashboardPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-stone-800 px-3 py-1.5 rounded-lg hover:bg-stone-100 transition-colors"
+              className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-white px-3 py-2 rounded-xl hover:bg-white/[0.06] transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Выйти</span>
@@ -109,32 +109,31 @@ export default function TeacherDashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl w-full mx-auto px-4 py-8 flex-1">
+      <main className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-10 flex-1">
         {/* Banner with Action */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-6 sm:p-8 text-white shadow-sm mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          <div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/20 text-white mb-3 backdrop-blur-xs">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+        <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-[#121A30] via-[#10172A] to-[#121A30] border border-white/10 shadow-[0_12px_45px_rgba(0,0,0,0.5)] mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
+          <div className="relative z-10">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#39D98A]/10 text-[#39D98A] border border-[#39D98A]/25 mb-3">
+              <Sparkles className="w-3.5 h-3.5" />
               Готовый интерактивный модуль
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight mb-2">
-              Тематическая викторина: &laquo;Каучук и резина&raquo;
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-2">
+              Тематическая викторина: «Каучук и резина»
             </h1>
-            <p className="text-sm text-blue-100 max-w-xl font-normal leading-relaxed">
+            <p className="text-sm text-slate-400 max-w-xl font-normal leading-relaxed">
               20 научно выверенных вопросов с формулами, реакциями вулканизации и синтеза полимеров.
               10 базовых, 5 средних и 5 олимпиадных задач.
             </p>
           </div>
 
-          <div className="shrink-0">
+          <div className="shrink-0 relative z-10">
             <Button
-              variant="outline"
               size="lg"
               onClick={handleCreateSession}
               isLoading={isCreating}
-              className="bg-white text-blue-700 hover:bg-blue-50 font-black border-none shadow-md w-full sm:w-auto hover:text-blue-800"
+              className="w-full sm:w-auto shadow-[0_0_25px_rgba(79,142,247,0.4)]"
             >
-              <PlusCircle className="w-5 h-5 mr-2 text-blue-600" />
+              <PlusCircle className="w-5 h-5 mr-2" />
               <span>Создать новую сессию</span>
             </Button>
           </div>
@@ -145,19 +144,18 @@ export default function TeacherDashboardPage() {
         {/* Sessions List */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-black text-stone-900">Игровые сессии</h2>
-              <span className="text-xs font-bold text-stone-500 bg-stone-200/60 px-2 py-0.5 rounded-full">
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-lg font-black text-white">Игровые сессии</h2>
+              <span className="text-xs font-bold text-slate-300 bg-white/[0.08] px-2.5 py-0.5 rounded-full font-mono">
                 {sessions.length}
               </span>
             </div>
 
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={fetchSessions}
               disabled={isLoading}
-              className="border-stone-200 text-stone-600"
             >
               <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
               Обновить
@@ -167,11 +165,11 @@ export default function TeacherDashboardPage() {
           {isLoading ? (
             <LoadingSpinner label="Загрузка сессий..." />
           ) : sessions.length === 0 ? (
-            <Card className="text-center py-12 px-4 border-dashed border-2 border-stone-200 bg-stone-50/50">
-              <BookOpen className="w-10 h-10 text-stone-400 mx-auto mb-3" />
-              <h3 className="text-base font-bold text-stone-700">У вас пока нет активных сессий</h3>
-              <p className="text-sm text-stone-500 mt-1 mb-6 max-w-sm mx-auto">
-                Создайте первую сессию, чтобы ученики могли подключиться по PIN-коду
+            <Card className="text-center py-14 px-4 border-dashed border-2 border-white/10 bg-white/[0.02]">
+              <BookOpen className="w-10 h-10 text-slate-500 mx-auto mb-3" />
+              <h3 className="text-base font-bold text-slate-300">У вас пока нет активных сессий</h3>
+              <p className="text-sm text-slate-500 mt-1 mb-6 max-w-sm mx-auto">
+                Создайте первую сессию, чтобы ученики могли подключиться по 6-значному PIN-коду
               </p>
               <Button onClick={handleCreateSession} isLoading={isCreating}>
                 <PlusCircle className="w-4 h-4 mr-2" />
@@ -179,7 +177,7 @@ export default function TeacherDashboardPage() {
               </Button>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-3.5">
               {sessions.map((sess) => (
                 <SessionCard key={sess.id} session={sess} />
               ))}

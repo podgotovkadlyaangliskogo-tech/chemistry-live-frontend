@@ -1,5 +1,4 @@
 import React from 'react';
-import { Badge } from '../ui/Badge';
 import { Difficulty } from '@/shared/types/game.types';
 
 export interface QuestionProgressProps {
@@ -18,33 +17,48 @@ export const QuestionProgress: React.FC<QuestionProgressProps> = ({
   const currentNum = currentIndex + 1;
   const progressPercent = Math.min(100, Math.round((currentNum / Math.max(1, totalQuestions)) * 100));
 
-  const difficultyLabels: Record<Difficulty, { label: string; variant: 'green' | 'yellow' | 'red' }> = {
-    easy: { label: 'Базовый', variant: 'green' },
-    medium: { label: 'Средний', variant: 'yellow' },
-    ultra_hard: { label: 'Сложный', variant: 'red' },
+  const difficultyConfigs: Record<Difficulty, { label: string; badgeClass: string }> = {
+    easy: {
+      label: 'Базовый',
+      badgeClass: 'bg-[#39D98A]/10 text-[#39D98A] border-[#39D98A]/30',
+    },
+    medium: {
+      label: 'Продвинутый',
+      badgeClass: 'bg-[#FFB800]/10 text-[#FFB800] border-[#FFB800]/30',
+    },
+    ultra_hard: {
+      label: 'Олимпиадный',
+      badgeClass: 'bg-[#FF4757]/10 text-[#FF4757] border-[#FF4757]/30',
+    },
   };
 
-  const diffConfig = difficultyLabels[difficulty] || difficultyLabels.easy;
+  const diff = difficultyConfigs[difficulty] || difficultyConfigs.easy;
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-stone-700">
-            Вопрос {currentNum} из {totalQuestions}
-          </span>
-          <Badge variant={diffConfig.variant}>{diffConfig.label}</Badge>
-        </div>
-        <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
-          +{points} баллов
-        </span>
-      </div>
-
-      <div className="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
+      {/* Top progress line */}
+      <div className="w-full h-1.5 rounded-full mb-3 overflow-hidden bg-white/[0.08]">
         <div
-          className="bg-blue-600 h-full transition-all duration-300 rounded-full"
+          className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-[#4F8EF7] to-[#39D98A] shadow-[0_0_12px_rgba(79,142,247,0.7)]"
           style={{ width: `${progressPercent}%` }}
         />
+      </div>
+
+      {/* Info row */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <span className="text-xs sm:text-sm font-bold text-slate-400">
+            Вопрос <span className="text-white font-mono font-black">{currentNum}</span> из {totalQuestions}
+          </span>
+
+          <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${diff.badgeClass}`}>
+            {diff.label}
+          </span>
+        </div>
+
+        <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/20">
+          ⭐ {points} pts
+        </span>
       </div>
     </div>
   );

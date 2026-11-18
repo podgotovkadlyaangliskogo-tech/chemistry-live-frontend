@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Atom } from 'lucide-react';
+import { Atom, Sparkles, BookOpen, ExternalLink, ShieldCheck } from 'lucide-react';
 
 export default function PublicLayout({
   children,
@@ -8,48 +8,80 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAFAF8]">
-      <header className="sticky top-0 z-30 bg-[#FAFAF8]/90 backdrop-blur-md border-b border-[#E8E5E0]">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-              <Atom className="w-6 h-6 animate-spin" style={{ animationDuration: '12s' }} />
+    <div className="min-h-screen flex flex-col bg-[#0A0E1A] text-[#F0F4FF]">
+      {/* Top Navigation - Frontend Mentor Style */}
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#0A0E1A]/85 border-b border-white/[0.08]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3.5 group">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#4F8EF7] via-[#6366F1] to-[#39D98A] flex items-center justify-center shadow-[0_0_24px_rgba(79,142,247,0.45)] group-hover:scale-105 transition-transform duration-300">
+              <Atom className="w-6 h-6 text-white animate-spin" style={{ animationDuration: '14s' }} />
             </div>
-            <div>
-              <span className="text-xl font-black tracking-tight text-stone-900">
-                Chemistry<span className="text-blue-600">Live</span>
-              </span>
-              <span className="hidden sm:inline-block ml-2 text-[11px] font-bold text-stone-500 uppercase tracking-widest bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200">
-                Викторины
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span className="text-xl sm:text-2xl font-black tracking-tight text-white font-sans">
+                  Chemistry<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4F8EF7] to-[#39D98A]">Live</span>
+                </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#39D98A]/10 text-[#39D98A] border border-[#39D98A]/25">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#39D98A] animate-ping" />
+                  Live
+                </span>
+              </div>
+              <span className="text-[11px] font-medium text-slate-400 hidden sm:block">
+                Интерактивная научная платформа
               </span>
             </div>
           </Link>
 
-          <div className="flex items-center gap-3">
+          {/* Action Navigation */}
+          <nav className="flex items-center gap-2 sm:gap-4">
             <Link
               href="/play"
-              className="px-4 py-2 text-sm font-bold text-stone-700 hover:text-stone-900 rounded-xl hover:bg-stone-100 transition-colors"
+              className="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all duration-200 active:scale-95 flex items-center gap-2"
             >
-              Войти как ученик
+              <span>Войти по PIN</span>
             </Link>
+
             <Link
               href="/teacher/login"
-              className="px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition-all active:scale-95"
+              className="px-4 sm:px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-[#4F8EF7] to-[#6366F1] hover:from-[#3b7fe9] hover:to-[#5558e6] shadow-[0_0_20px_rgba(79,142,247,0.35)] hover:shadow-[0_0_28px_rgba(79,142,247,0.5)] transition-all duration-200 active:scale-95 border border-white/10 flex items-center gap-2"
             >
-              Учителю
+              <span>Панель учителя</span>
             </Link>
-          </div>
+          </nav>
         </div>
       </header>
 
+      {/* Main Page Content */}
       <main className="flex-1 flex flex-col">{children}</main>
 
-      <footer className="border-t border-[#E8E5E0] bg-white py-8">
-        <div className="max-w-6xl mx-auto px-4 text-center text-xs text-stone-500">
-          <p className="font-semibold text-stone-700 mb-1">
-            Chemistry Live — Образовательная платформа по химии
+      {/* Footer - Frontend Mentor Style Clean Navy */}
+      <footer className="border-t border-white/[0.08] bg-[#070A14] py-12 px-4 sm:px-6 lg:px-8 mt-auto">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#4F8EF7] to-[#39D98A] flex items-center justify-center">
+              <Atom className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <p className="text-sm font-black text-white">Chemistry Live</p>
+              <p className="text-xs text-slate-400">
+                Живые синхронные викторины по органической химии
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400 font-medium">
+            <span className="flex items-center gap-1.5 text-emerald-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              Realtime Supabase Engine
+            </span>
+            <span>20 вопросов: «Каучук и резина»</span>
+            <span>Формат Kahoot Live</span>
+          </div>
+
+          <p className="text-xs text-slate-500">
+            © {new Date().getFullYear()} Chemistry Live. Все права защищены.
           </p>
-          <p>© {new Date().getFullYear()} Все права защищены. Создано для интерактивного обучения.</p>
         </div>
       </footer>
     </div>

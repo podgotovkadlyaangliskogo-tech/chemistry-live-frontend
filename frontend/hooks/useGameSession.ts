@@ -63,8 +63,7 @@ export function useGameSession(sessionId: string) {
   useRealtime(sessionId, {
     onSessionUpdate: (updated) => {
       setSession(updated);
-      // If question changed or status changed, refetch details
-      fetchSession();
+      // Data already arrives via realtime — no cascade refetch needed here.
     },
     onPlayerJoined: (player) => {
       setPlayers((prev) => {

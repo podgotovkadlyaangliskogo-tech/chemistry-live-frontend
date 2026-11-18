@@ -140,6 +140,18 @@ export class PlayerRepository {
     return data as PlayerAnswer[];
   }
 
+  /** Returns all answers submitted by a specific player in a session. */
+  static async getAnswersByPlayer(sessionId: string, playerId: string): Promise<PlayerAnswer[]> {
+    const { data, error } = await this.client
+      .from('player_answers')
+      .select('*')
+      .eq('session_id', sessionId)
+      .eq('player_id', playerId);
+
+    if (error || !data) return [];
+    return data as PlayerAnswer[];
+  }
+
   static async getLeaderboard(sessionId: string): Promise<LeaderboardEntry[]> {
     const players = await this.getPlayersBySession(sessionId);
 

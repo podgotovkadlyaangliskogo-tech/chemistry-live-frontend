@@ -17,7 +17,7 @@ import { LeaderboardList } from '@/frontend/components/leaderboard/LeaderboardLi
 import { useGameSession } from '@/frontend/hooks/useGameSession';
 import { useLeaderboard } from '@/frontend/hooks/useLeaderboard';
 import { AnswerOption } from '@/shared/types/quiz.types';
-import { Atom, Users, CheckCircle2, Trophy, ArrowLeft } from 'lucide-react';
+import { Users, ArrowLeft } from 'lucide-react';
 
 interface GamePageProps {
   params: Promise<{ sessionId: string }>;
@@ -74,7 +74,7 @@ export default function TeacherGamePage({ params }: GamePageProps) {
 
   if (isLoading && !session) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAFAF8]">
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A]">
         <LoadingSpinner label="Загрузка сессии викторины..." size="lg" />
       </div>
     );
@@ -82,10 +82,10 @@ export default function TeacherGamePage({ params }: GamePageProps) {
 
   if (error || !session) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#FAFAF8]">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#0A0E1A]">
         <ErrorMessage message={error || 'Сессия не найдена'} />
         <Link href="/teacher/dashboard" className="mt-4">
-          <Button variant="outline">Вернуться в дашборд</Button>
+          <Button variant="secondary">Вернуться в дашборд</Button>
         </Link>
       </div>
     );
@@ -135,30 +135,30 @@ export default function TeacherGamePage({ params }: GamePageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
+    <div className="min-h-screen bg-[#0A0E1A] text-white flex flex-col">
       {/* Game Header */}
-      <header className="bg-white border-b border-[#E8E5E0] sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <header className="bg-[#0A0E1A]/85 backdrop-blur-xl border-b border-white/[0.08] sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto px-4 h-18 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
               href="/teacher/dashboard"
-              className="text-stone-400 hover:text-stone-700 p-1.5 rounded-lg hover:bg-stone-100 transition-colors"
+              className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-white/[0.06] transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-base text-stone-900">
+              <span className="font-black text-base text-white">
                 Экран ведущего
               </span>
-              <span className="font-mono text-xs font-bold text-stone-600 bg-stone-100 px-2 py-0.5 rounded-md">
+              <span className="font-mono text-xs font-bold text-[#4F8EF7] bg-[#4F8EF7]/15 border border-[#4F8EF7]/30 px-2.5 py-0.5 rounded-lg">
                 PIN: {session.pin_code}
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-stone-600 bg-stone-100 px-3 py-1.5 rounded-xl border border-stone-200">
-              <Users className="w-4 h-4 text-stone-500" />
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-300 bg-white/[0.06] px-3.5 py-1.5 rounded-xl border border-white/10 font-mono">
+              <Users className="w-4 h-4 text-[#4F8EF7]" />
               <span>
                 Ответили: {answersCount} / {players.length}
               </span>
@@ -170,7 +170,7 @@ export default function TeacherGamePage({ params }: GamePageProps) {
       {/* Main Game Screen */}
       <main className="max-w-5xl w-full mx-auto px-4 py-6 flex-1 flex flex-col gap-6">
         {/* Progress & Countdown Header */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white border border-stone-200 rounded-2xl shadow-xs">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 sm:p-5 bg-[#10172A]/90 border border-white/[0.08] rounded-3xl shadow-xl">
           <div className="flex-1 w-full">
             <QuestionProgress
               currentIndex={session.current_question_index}

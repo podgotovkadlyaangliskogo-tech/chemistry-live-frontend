@@ -103,22 +103,30 @@ export class GameService {
 
     const players = await PlayerRepository.getPlayersBySession(sessionId);
 
-    // Calculate final results and ranks
-    const results = await Promise.all(
-      players.map(async (player, index) => {
-        const answers = await PlayerRepository.getAnswersForQuestion(sessionId, player.id);
+    // BUG 2 fix: use getAnswersByPlayer (by playerId) instead of getAnswersForQuestion (by questionId)
+    // BUG 3 fix: sort by final_score descending BEFORE assigning ranks
+    const unsortedResults = await Promise.all(
+      players.map(async (player) => {
+        const answers = await PlayerRepository.getAnswersByPlayer(sessionId, player.id);
         const correctCount = answers.filter((a) => a.is_correct).length;
 
         return {
           session_id: sessionId,
           player_id: player.id,
           final_score: player.score,
-          final_rank: index + 1,
           correct_answers_count: correctCount,
           total_questions: totalQuestions,
         };
       })
     );
+
+    // Sort by final_score descending so ranks are correct
+    unsortedResults.sort((a, b) => b.final_score - a.final_score);
+
+    const results = unsortedResults.map((r, index) => ({
+      ...r,
+      final_rank: index + 1,
+    }));
 
     await GameRepository.saveResults(results);
 

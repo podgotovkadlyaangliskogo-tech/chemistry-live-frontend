@@ -23,16 +23,16 @@ export const QuestionControl: React.FC<QuestionControlProps> = ({
   isLoading = false,
 }) => {
   return (
-    <div className="flex flex-wrap items-center justify-end gap-3 p-4 bg-white/90 backdrop-blur-sm border border-stone-200 rounded-2xl shadow-sm">
+    <div className="flex flex-wrap items-center justify-end gap-3 p-4 bg-[#10172A]/90 backdrop-blur-xl border border-white/[0.08] rounded-3xl shadow-xl">
       {status === 'question_active' && (
         <Button
           variant="secondary"
           onClick={onRevealAnswer}
           isLoading={isLoading}
-          className="border-stone-300"
+          className="border-white/10"
         >
-          <Eye className="w-4 h-4 mr-2 text-stone-600" />
-          Показать правильный ответ
+          <Eye className="w-4 h-4 mr-2 text-amber-400" />
+          <span>Показать правильный ответ</span>
         </Button>
       )}
 
@@ -42,8 +42,8 @@ export const QuestionControl: React.FC<QuestionControlProps> = ({
           onClick={onShowLeaderboard}
           isLoading={isLoading}
         >
-          <Trophy className="w-4 h-4 mr-2" />
-          Показать таблицу лидеров
+          <Trophy className="w-4 h-4 mr-2 text-amber-300" />
+          <span>Показать таблицу лидеров</span>
         </Button>
       )}
 
@@ -63,10 +63,10 @@ export const QuestionControl: React.FC<QuestionControlProps> = ({
           variant="primary"
           onClick={onEndGame}
           isLoading={isLoading}
-          className="bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500"
+          className="bg-gradient-to-r from-[#39D98A] to-[#10B981] hover:from-[#2ecc71] hover:to-[#059669] shadow-[0_0_24px_rgba(57,217,138,0.4)]"
         >
           <Trophy className="w-4 h-4 mr-2" />
-          Завершить игру и показать подиум
+          <span>Завершить игру и открыть пьедестал</span>
         </Button>
       )}
 
@@ -74,10 +74,10 @@ export const QuestionControl: React.FC<QuestionControlProps> = ({
         variant="ghost"
         size="sm"
         onClick={onEndGame}
-        className="text-stone-500 hover:text-red-600"
+        className="text-slate-400 hover:text-rose-400 hover:bg-rose-500/10"
       >
         <StopCircle className="w-4 h-4 mr-1.5" />
-        Завершить досрочно
+        <span>Завершить досрочно</span>
       </Button>
     </div>
   );

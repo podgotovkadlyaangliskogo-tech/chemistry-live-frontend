@@ -2,7 +2,6 @@
 
 import React, { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/frontend/components/ui/Card';
 import { LoadingSpinner } from '@/frontend/components/ui/LoadingSpinner';
 import { ErrorMessage } from '@/frontend/components/ui/ErrorMessage';
 import { QuestionCard } from '@/frontend/components/quiz/QuestionCard';
@@ -12,7 +11,7 @@ import { QuestionProgress } from '@/frontend/components/quiz/QuestionProgress';
 import { AnswerResult } from '@/frontend/components/student/AnswerResult';
 import { usePlayerSession } from '@/frontend/hooks/usePlayerSession';
 import { useGameSession } from '@/frontend/hooks/useGameSession';
-import { Flame, Trophy } from 'lucide-react';
+import { Flame, Trophy, Zap, ShieldCheck } from 'lucide-react';
 import { formatScore } from '@/frontend/lib/formatting';
 
 interface StudentGameProps {
@@ -55,6 +54,13 @@ export default function StudentGamePage({ params }: StudentGameProps) {
     }
   }, [session?.status, sessionId, router]);
 
+  // Redirect to /play if player is missing
+  useEffect(() => {
+    if (!isLoading && !player) {
+      router.push('/play');
+    }
+  }, [player, isLoading, router]);
+
   const handleSelectOption = async (optionId: string) => {
     if (hasAnswered || isSubmitting || session?.status !== 'question_active') {
       return;
@@ -65,7 +71,6 @@ export default function StudentGamePage({ params }: StudentGameProps) {
       setIsSubmitting(true);
       setSubmitError(null);
 
-      // Measure response time from question start
       const startTime = session.question_start_time
         ? new Date(session.question_start_time).getTime()
         : Date.now() - 1000;
@@ -81,15 +86,15 @@ export default function StudentGamePage({ params }: StudentGameProps) {
 
   if (isLoading && !activeQuestion) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAFAF8] px-4">
-        <LoadingSpinner label="Загрузка вопроса..." />
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A] px-4">
+        <LoadingSpinner label="Загрузка вопроса..." size="lg" />
       </div>
     );
   }
 
   if (error || !session) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#FAFAF8]">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#0A0E1A]">
         <ErrorMessage message={error || 'Сессия недоступна'} />
       </div>
     );
@@ -99,27 +104,36 @@ export default function StudentGamePage({ params }: StudentGameProps) {
     session.status === 'question_review' || session.status === 'leaderboard';
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] flex flex-col justify-between p-3 sm:p-6 max-w-2xl mx-auto w-full">
-      {/* Top Header: Nickname, Score, Streak */}
-      <header className="flex items-center justify-between pb-3 border-b border-stone-200 mb-4">
-        <div>
-          <span className="text-xs font-semibold text-stone-500 block">Ученик</span>
-          <span className="font-black text-base text-stone-900 truncate">
-            {player?.nickname || 'Участник'}
-          </span>
+    <div className="min-h-screen bg-[#0A0E1A] text-white flex flex-col justify-between p-4 sm:p-6 max-w-3xl mx-auto w-full">
+      {/* Top Header: Nickname, Streak, Score */}
+      <header className="flex items-center justify-between pb-4 border-b border-white/[0.08] mb-5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#4F8EF7] to-[#39D98A] flex items-center justify-center text-sm font-black text-white shadow-md">
+            {player?.nickname ? player.nickname[0].toUpperCase() : 'У'}
+          </div>
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+              Игрок
+            </span>
+            <span className="font-black text-base text-white truncate">
+              {player?.nickname || 'Ученик'}
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
           {player && player.streak > 1 && (
-            <div className="flex items-center text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
-              <Flame className="w-4 h-4 mr-1 text-amber-600 fill-amber-500" />
+            <div className="flex items-center text-xs font-black text-amber-300 bg-amber-400/15 px-3 py-1.5 rounded-xl border border-amber-400/30">
+              <Flame className="w-4 h-4 mr-1 text-amber-400 fill-amber-400 animate-pulse" />
               <span>{player.streak}</span>
             </div>
           )}
 
-          <div className="text-right">
-            <span className="text-xs font-semibold text-stone-500 block">Счет</span>
-            <span className="font-mono font-black text-base sm:text-lg text-blue-600">
+          <div className="text-right bg-white/[0.04] border border-white/[0.08] px-3.5 py-1.5 rounded-2xl">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+              Счет
+            </span>
+            <span className="font-mono font-black text-base sm:text-lg text-emerald-400">
               {formatScore(player?.score || 0)}
             </span>
           </div>
@@ -127,9 +141,9 @@ export default function StudentGamePage({ params }: StudentGameProps) {
       </header>
 
       {/* Main Question & Timer Area */}
-      <div className="flex-1 flex flex-col justify-center gap-4">
-        {/* Progress & Timer */}
-        <div className="flex items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-stone-200 shadow-2xs">
+      <div className="flex-1 flex flex-col justify-center gap-5">
+        {/* Progress & Countdown Header */}
+        <div className="flex items-center justify-between gap-4 bg-[#10172A]/90 p-4 rounded-3xl border border-white/[0.08] shadow-lg">
           <div className="flex-1">
             <QuestionProgress
               currentIndex={session.current_question_index}
@@ -152,7 +166,7 @@ export default function StudentGamePage({ params }: StudentGameProps) {
 
         {submitError && <ErrorMessage message={submitError} className="my-2" />}
 
-        {/* Question Text */}
+        {/* Question Card */}
         {activeQuestion && (
           <QuestionCard
             text={activeQuestion.text}
@@ -162,7 +176,7 @@ export default function StudentGamePage({ params }: StudentGameProps) {
           />
         )}
 
-        {/* If submitted or revealed: show status card */}
+        {/* Status result if submitted or revealed */}
         {(hasAnswered || isRevealed) && (
           <AnswerResult
             isRevealed={isRevealed}
@@ -175,7 +189,7 @@ export default function StudentGamePage({ params }: StudentGameProps) {
 
         {/* 4 Large Mobile Touch Buttons */}
         {activeQuestion && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-2">
             {activeQuestion.options.map((option, idx) => {
               const isSelected = selectedOptionId === option.id;
               const isCorrect = isRevealed && (lastAnswerResult?.is_correct && isSelected);
@@ -198,9 +212,9 @@ export default function StudentGamePage({ params }: StudentGameProps) {
         )}
       </div>
 
-      {/* Bottom Footer Note */}
-      <footer className="pt-4 text-center text-xs text-stone-400">
-        Chemistry Live • Быстрый и точный ответ приносит больше баллов
+      {/* Footer */}
+      <footer className="pt-5 text-center text-xs text-slate-500 font-medium">
+        Chemistry Live • Скорость и точность ответа определяют баллы
       </footer>
     </div>
   );

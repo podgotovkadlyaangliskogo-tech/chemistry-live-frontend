@@ -18,32 +18,28 @@ const LETTERS = ['A', 'B', 'C', 'D'];
 
 const COLOR_MAP = {
   red: {
-    bg: 'bg-red-500 hover:bg-red-600 active:bg-red-700',
-    border: 'border-red-600',
-    selected: 'ring-4 ring-red-400 bg-red-600',
-    muted: 'opacity-40 bg-red-400',
-    badge: 'bg-red-700 text-white',
+    bg: 'bg-gradient-to-br from-[#E03A3E] to-[#B31D28]',
+    border: 'border-red-400/40',
+    selected: 'ring-4 ring-white bg-[#E03A3E] shadow-[0_0_30px_rgba(224,58,62,0.6)] scale-[1.02]',
+    badge: 'bg-black/25 text-white',
   },
   blue: {
-    bg: 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700',
-    border: 'border-blue-600',
-    selected: 'ring-4 ring-blue-400 bg-blue-600',
-    muted: 'opacity-40 bg-blue-400',
-    badge: 'bg-blue-700 text-white',
+    bg: 'bg-gradient-to-br from-[#2D70F6] to-[#1E4DC2]',
+    border: 'border-blue-400/40',
+    selected: 'ring-4 ring-white bg-[#2D70F6] shadow-[0_0_30px_rgba(45,112,246,0.6)] scale-[1.02]',
+    badge: 'bg-black/25 text-white',
   },
   yellow: {
-    bg: 'bg-amber-500 hover:bg-amber-600 active:bg-amber-700',
-    border: 'border-amber-600',
-    selected: 'ring-4 ring-amber-300 bg-amber-600',
-    muted: 'opacity-40 bg-amber-400',
-    badge: 'bg-amber-700 text-white',
+    bg: 'bg-gradient-to-br from-[#D9822B] to-[#B36214]',
+    border: 'border-amber-400/40',
+    selected: 'ring-4 ring-white bg-[#D9822B] shadow-[0_0_30px_rgba(217,130,43,0.6)] scale-[1.02]',
+    badge: 'bg-black/25 text-white',
   },
   green: {
-    bg: 'bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700',
-    border: 'border-emerald-600',
-    selected: 'ring-4 ring-emerald-400 bg-emerald-600',
-    muted: 'opacity-40 bg-emerald-400',
-    badge: 'bg-emerald-700 text-white',
+    bg: 'bg-gradient-to-br from-[#10B981] to-[#059669]',
+    border: 'border-emerald-400/40',
+    selected: 'ring-4 ring-white bg-[#10B981] shadow-[0_0_30px_rgba(16,185,129,0.6)] scale-[1.02]',
+    badge: 'bg-black/25 text-white',
   },
 };
 
@@ -67,9 +63,9 @@ export const AnswerButton: React.FC<AnswerButtonProps> = ({
 
   if (isRevealed) {
     if (isCorrect) {
-      stateClasses = 'bg-emerald-600 ring-4 ring-emerald-300 scale-[1.02]';
+      stateClasses = 'bg-gradient-to-br from-[#10B981] to-[#047857] ring-4 ring-emerald-300 shadow-[0_0_35px_rgba(16,185,129,0.7)] scale-[1.02] z-10';
     } else {
-      stateClasses = 'opacity-35 bg-stone-400';
+      stateClasses = 'opacity-30 bg-slate-800 border border-white/5 grayscale';
     }
   } else if (isSelected) {
     stateClasses = colorStyles.selected;
@@ -80,37 +76,39 @@ export const AnswerButton: React.FC<AnswerButtonProps> = ({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`relative w-full text-left p-4 sm:p-6 rounded-2xl text-white shadow-md transition-all duration-200 flex flex-col justify-between min-h-[90px] sm:min-h-[120px] select-none ${stateClasses} ${
-        disabled && !isRevealed ? 'cursor-not-allowed opacity-80' : 'cursor-pointer active:scale-[0.98]'
+      className={`relative w-full text-left p-5 sm:p-6 rounded-3xl text-white shadow-xl transition-all duration-200 flex flex-col justify-between min-h-[105px] sm:min-h-[135px] select-none border border-white/10 ${stateClasses} ${
+        disabled && !isRevealed
+          ? 'cursor-not-allowed opacity-90'
+          : 'cursor-pointer hover:brightness-110 active:scale-[0.98]'
       }`}
     >
-      <div className="flex items-center justify-between w-full mb-2">
-        <div className="flex items-center gap-2">
-          <span className="text-xl sm:text-2xl drop-shadow-sm">{shape}</span>
-          <span className="px-2 py-0.5 rounded-md bg-black/20 text-xs sm:text-sm font-bold tracking-wider">
+      <div className="flex items-center justify-between w-full mb-3">
+        <div className="flex items-center gap-2.5">
+          <span className="text-xl sm:text-2xl drop-shadow-md">{shape}</span>
+          <span className={`px-2.5 py-0.5 rounded-lg text-xs sm:text-sm font-black tracking-wider ${colorStyles.badge}`}>
             {letter}
           </span>
         </div>
         {isSelected && (
-          <span className="bg-white text-stone-900 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
-            Ваш выбор
+          <span className="bg-white text-slate-900 text-xs font-black px-3 py-1 rounded-full shadow-md animate-bounce">
+            Твой выбор
           </span>
         )}
         {isRevealed && isCorrect && (
-          <span className="bg-white text-emerald-700 text-xs font-black px-2.5 py-1 rounded-full shadow-sm">
-            ✓ Правильно
+          <span className="bg-white text-emerald-800 text-xs sm:text-sm font-black px-3 py-1 rounded-full shadow-md">
+            ✓ Правильный ответ
           </span>
         )}
       </div>
 
-      <div className="text-base sm:text-xl font-bold leading-snug drop-shadow-sm">
+      <div className="text-base sm:text-xl font-bold leading-snug drop-shadow-sm text-white">
         {text}
       </div>
 
       {statsPercentage !== undefined && (
-        <div className="mt-3 pt-2 border-t border-white/20 flex items-center justify-between text-xs sm:text-sm font-semibold">
+        <div className="mt-4 pt-2.5 border-t border-white/20 flex items-center justify-between text-xs sm:text-sm font-bold">
           <span>{statsCount ?? 0} ответов</span>
-          <span>{Math.round(statsPercentage)}%</span>
+          <span className="font-mono text-base">{Math.round(statsPercentage)}%</span>
         </div>
       )}
     </button>

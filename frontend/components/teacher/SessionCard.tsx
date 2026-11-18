@@ -5,7 +5,7 @@ import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { GameSession } from '@/shared/types/game.types';
 import { formatDateRussian } from '@/frontend/lib/formatting';
-import { Users, Play, ExternalLink } from 'lucide-react';
+import { Play, ExternalLink } from 'lucide-react';
 
 export interface SessionCardProps {
   session: GameSession;
@@ -30,23 +30,23 @@ export const SessionCard: React.FC<SessionCardProps> = ({ session }) => {
     : `/teacher/session/${session.id}/game`;
 
   return (
-    <Card className="hover:border-stone-300 transition-all duration-200">
+    <Card className="hover:border-white/20 transition-all duration-200 bg-[#10172A]/90 backdrop-blur-xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-2xl font-black font-mono tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-xl border border-blue-200">
+          <div className="flex items-center gap-2.5 mb-2">
+            <span className="text-xl sm:text-2xl font-black font-mono tracking-wider text-[#4F8EF7] bg-[#4F8EF7]/10 px-3 py-1 rounded-xl border border-[#4F8EF7]/30 shadow-[0_0_12px_rgba(79,142,247,0.25)]">
               {session.pin_code}
             </span>
             <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>
           </div>
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-slate-400 font-medium">
             Создана: {formatDateRussian(session.created_at)}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <Link href={targetUrl}>
-            <Button variant={isFinished ? 'outline' : 'primary'} size="sm">
+            <Button variant={isFinished ? 'secondary' : 'primary'} size="sm">
               {isFinished ? (
                 <>
                   <ExternalLink className="w-4 h-4 mr-1.5" />

@@ -26,14 +26,14 @@ export default function StudentWaitingPage({ params }: WaitingPageProps) {
 
   if (isLoading && !player) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAFAF8] px-4">
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A] px-4">
         <LoadingSpinner label="Подключение к игровой комнате..." />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-8 bg-[#FAFAF8]">
+    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-8 bg-[#0A0E1A]">
       <WaitingScreen
         nickname={player ? player.nickname : 'Ученик'}
         pinCode={session?.pin_code}

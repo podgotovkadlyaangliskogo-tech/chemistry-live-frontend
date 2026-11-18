@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Player } from '@/shared/types/player.types';
 import { GameSession } from '@/shared/types/game.types';
 import { useRealtime } from './useRealtime';
@@ -17,6 +17,9 @@ export function usePlayerSession(sessionId: string) {
   } | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // BUG 6 fix: track previous question id via ref to avoid stale closure in onSessionUpdate
+  const prevQuestionIdRef = useRef<string | null | undefined>(null);
 
   // Restore player info from sessionStorage
   useEffect(() => {
@@ -37,6 +40,8 @@ export function usePlayerSession(sessionId: string) {
       const data = await res.json();
       if (data.success) {
         setSession(data.data.session);
+        // Seed ref so the first realtime update compares against the actual current question
+        prevQuestionIdRef.current = data.data.session?.current_question_id ?? null;
       }
     } catch {
       // Fail silently on background poll
@@ -52,11 +57,12 @@ export function usePlayerSession(sessionId: string) {
   // Realtime updates
   useRealtime(sessionId, {
     onSessionUpdate: (updatedSession) => {
-      // If question changed, reset hasAnswered state
-      if (session?.current_question_id !== updatedSession.current_question_id) {
+      // BUG 6 fix: compare via ref (not stale `session` from closure)
+      if (prevQuestionIdRef.current !== updatedSession.current_question_id) {
         setHasAnswered(false);
         setLastAnswerResult(null);
       }
+      prevQuestionIdRef.current = updatedSession.current_question_id;
       setSession(updatedSession);
     },
     onPlayerUpdated: (updatedPlayer) => {

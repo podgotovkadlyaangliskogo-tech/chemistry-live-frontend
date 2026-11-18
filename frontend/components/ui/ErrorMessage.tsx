@@ -14,15 +14,15 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
 }) => {
   return (
     <div
-      className={`flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-red-800 ${className}`}
+      className={`flex items-start gap-3 p-4 bg-[#FF4757]/10 border border-[#FF4757]/30 rounded-2xl text-rose-200 ${className}`}
     >
-      <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+      <AlertCircle className="w-5 h-5 text-[#FF4757] shrink-0 mt-0.5" />
       <div className="flex-1">
-        <p className="text-sm font-medium">{message}</p>
+        <p className="text-sm font-semibold">{message}</p>
         {onRetry && (
           <button
             onClick={onRetry}
-            className="mt-2 text-xs font-semibold text-red-700 underline hover:text-red-900"
+            className="mt-2 text-xs font-bold text-[#FF4757] hover:underline cursor-pointer"
           >
             Попробовать снова
           </button>
