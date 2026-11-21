@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use, useState, useEffect } from 'react';
+import React, { use, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card } from '@/frontend/components/ui/Card';
@@ -47,6 +47,14 @@ export default function TeacherGamePage({ params }: GamePageProps) {
     totalAnswers: number;
     correctOptionId: string | null;
   }>({ counts: {}, totalAnswers: 0, correctOptionId: null });
+
+  // Защита маршрута: проверка авторизации преподавателя
+  useEffect(() => {
+    const isAuth = typeof window !== 'undefined' && sessionStorage.getItem('chemistry_teacher_auth');
+    if (!isAuth) {
+      router.push('/teacher/login');
+    }
+  }, [router]);
 
   // Load question stats when question ends or is revealed
   useEffect(() => {
@@ -95,36 +103,36 @@ export default function TeacherGamePage({ params }: GamePageProps) {
     session.status === 'question_review' || session.status === 'leaderboard';
   const isLeaderboardPhase = session.status === 'leaderboard';
   const isLastQuestion =
-    session.current_question_index + 1 >= (totalQuestions || 20);
+    totalQuestions > 0 && session.current_question_index + 1 >= totalQuestions;
 
-  const handleReveal = async () => {
+  const handleReveal = useCallback(async () => {
     try {
       setIsAdvancing(true);
       await advanceQuestion('reveal');
     } finally {
       setIsAdvancing(false);
     }
-  };
+  }, [advanceQuestion]);
 
-  const handleShowLeaderboard = async () => {
+  const handleShowLeaderboard = useCallback(async () => {
     try {
       setIsAdvancing(true);
       await advanceQuestion('leaderboard');
     } finally {
       setIsAdvancing(false);
     }
-  };
+  }, [advanceQuestion]);
 
-  const handleNext = async () => {
+  const handleNext = useCallback(async () => {
     try {
       setIsAdvancing(true);
       await advanceQuestion('next');
     } finally {
       setIsAdvancing(false);
     }
-  };
+  }, [advanceQuestion]);
 
-  const handleEnd = async () => {
+  const handleEnd = useCallback(async () => {
     try {
       setIsAdvancing(true);
       await endGame();
@@ -132,7 +140,7 @@ export default function TeacherGamePage({ params }: GamePageProps) {
     } finally {
       setIsAdvancing(false);
     }
-  };
+  }, [endGame, router, sessionId]);
 
   return (
     <div className="min-h-screen bg-[#0A0E1A] text-white flex flex-col">
@@ -174,7 +182,7 @@ export default function TeacherGamePage({ params }: GamePageProps) {
           <div className="flex-1 w-full">
             <QuestionProgress
               currentIndex={session.current_question_index}
-              totalQuestions={totalQuestions || 20}
+              totalQuestions={totalQuestions ?? undefined}
               difficulty={activeQuestion?.difficulty}
               points={activeQuestion?.points}
             />

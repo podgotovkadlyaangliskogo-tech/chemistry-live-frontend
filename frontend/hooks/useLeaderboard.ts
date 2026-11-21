@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { LeaderboardEntry } from '@/shared/types/player.types';
 import { GameResult } from '@/shared/types/game.types';
 import { useRealtime } from './useRealtime';
@@ -34,13 +34,16 @@ export function useLeaderboard(sessionId: string) {
     fetchLeaderboard();
   }, [fetchLeaderboard]);
 
+  // БАГ 7 фикс: дебаунс 500мс чтобы не делать HTTP запрос при каждом одновременном ответе игрока
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debouncedFetch = useCallback(() => {
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => fetchLeaderboard(), 500);
+  }, [fetchLeaderboard]);
+
   useRealtime(sessionId, {
-    onPlayerUpdated: () => {
-      fetchLeaderboard();
-    },
-    onPlayerJoined: () => {
-      fetchLeaderboard();
-    },
+    onPlayerUpdated: debouncedFetch,
+    onPlayerJoined: debouncedFetch,
   });
 
   return {

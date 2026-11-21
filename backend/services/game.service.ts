@@ -142,6 +142,7 @@ export class GameService {
   }
 
   static async getQuestionStats(sessionId: string, questionId: string) {
+    const session = await GameRepository.getSessionById(sessionId);
     const answers = await PlayerRepository.getAnswersForQuestion(sessionId, questionId);
     const question = await QuizRepository.getQuestionWithCorrectAnswer(questionId);
     if (!question) return { counts: {}, totalAnswers: 0, correctOptionId: null };
@@ -157,10 +158,13 @@ export class GameService {
       }
     }
 
+    // Защита от читерства: пока раунд активен, правильный ответ скрыт
+    const isRevealedPhase = session && ['question_review', 'leaderboard', 'game_over'].includes(session.status);
+
     return {
       counts,
       totalAnswers: answers.length,
-      correctOptionId: question.correct_option_id,
+      correctOptionId: isRevealedPhase ? question.correct_option_id : null,
     };
   }
 }

@@ -16,7 +16,12 @@ export async function POST(request: Request, segmentData: Params) {
       return NextResponse.json({ success: false, error: 'Сессия не найдена' }, { status: 404 });
     }
 
-    // You can reflect locked in session status or simply return success
+    // БАГ 5 фикс: реально сохраняем is_locked в базу данных
+    const updated = await GameRepository.updateSession(sessionId, { is_locked: locked });
+    if (!updated) {
+      return NextResponse.json({ success: false, error: 'Не удалось обновить статус комнаты' }, { status: 500 });
+    }
+
     return NextResponse.json({
       success: true,
       data: { sessionId, isLocked: locked },

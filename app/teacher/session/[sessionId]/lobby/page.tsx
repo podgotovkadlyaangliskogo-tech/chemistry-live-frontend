@@ -43,6 +43,21 @@ export default function TeacherLobbyPage({ params }: LobbyPageProps) {
   const [copied, setCopied] = useState(false);
   const [joinUrl, setJoinUrl] = useState('');
 
+  // Синхронизируем состояние блокировки с данными сессии
+  useEffect(() => {
+    if (session && session.is_locked !== undefined) {
+      setIsLocked(session.is_locked);
+    }
+  }, [session?.is_locked]);
+
+  // Защита маршрута: проверка авторизации преподавателя
+  useEffect(() => {
+    const isAuth = typeof window !== 'undefined' && sessionStorage.getItem('chemistry_teacher_auth');
+    if (!isAuth) {
+      router.push('/teacher/login');
+    }
+  }, [router]);
+
   useEffect(() => {
     if (session?.pin_code && typeof window !== 'undefined') {
       const origin = window.location.origin;

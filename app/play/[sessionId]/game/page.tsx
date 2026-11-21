@@ -2,8 +2,10 @@
 
 import React, { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { LoadingSpinner } from '@/frontend/components/ui/LoadingSpinner';
 import { ErrorMessage } from '@/frontend/components/ui/ErrorMessage';
+import { Button } from '@/frontend/components/ui/Button';
 import { QuestionCard } from '@/frontend/components/quiz/QuestionCard';
 import { AnswerButton } from '@/frontend/components/quiz/AnswerButton';
 import { CountdownTimer } from '@/frontend/components/quiz/CountdownTimer';
@@ -11,7 +13,7 @@ import { QuestionProgress } from '@/frontend/components/quiz/QuestionProgress';
 import { AnswerResult } from '@/frontend/components/student/AnswerResult';
 import { usePlayerSession } from '@/frontend/hooks/usePlayerSession';
 import { useGameSession } from '@/frontend/hooks/useGameSession';
-import { Flame, Trophy, Zap, ShieldCheck } from 'lucide-react';
+import { Flame, Trophy, Zap, ShieldCheck, UserX } from 'lucide-react';
 import { formatScore } from '@/frontend/lib/formatting';
 
 interface StudentGameProps {
@@ -26,6 +28,8 @@ export default function StudentGamePage({ params }: StudentGameProps) {
     player,
     hasAnswered,
     lastAnswerResult,
+    correctOptionId,
+    isKicked,
     submitAnswer,
   } = usePlayerSession(sessionId);
 
@@ -47,19 +51,21 @@ export default function StudentGamePage({ params }: StudentGameProps) {
     setSubmitError(null);
   }, [session?.current_question_id]);
 
-  // Navigate to results if game finishes
+  // Navigate to results if game finishes, or back to waiting if game is in lobby
   useEffect(() => {
     if (session?.status === 'game_over') {
       router.push(`/play/${sessionId}/results`);
+    } else if (session?.status === 'lobby') {
+      router.push(`/play/${sessionId}/waiting`);
     }
   }, [session?.status, sessionId, router]);
 
   // Redirect to /play if player is missing
   useEffect(() => {
-    if (!isLoading && !player) {
+    if (!isLoading && !player && !isKicked) {
       router.push('/play');
     }
-  }, [player, isLoading, router]);
+  }, [player, isLoading, isKicked, router]);
 
   const handleSelectOption = async (optionId: string) => {
     if (hasAnswered || isSubmitting || session?.status !== 'question_active') {
@@ -83,6 +89,27 @@ export default function StudentGamePage({ params }: StudentGameProps) {
       setIsSubmitting(false);
     }
   };
+
+  if (isKicked) {
+    return (
+      <div className="min-h-screen flex flex-col justify-center items-center px-4 py-8 bg-[#0A0E1A]">
+        <div className="max-w-md w-full p-8 rounded-3xl bg-[#10172A]/90 border border-rose-500/30 text-center shadow-xl">
+          <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400">
+            <UserX className="w-7 h-7" />
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">Исключение из комнаты</h2>
+          <p className="text-sm text-slate-400 mb-6">
+            Ведущий исключил вас из этой игровой сессии.
+          </p>
+          <Link href="/play">
+            <Button variant="secondary" className="w-full">
+              Войти в другую комнату
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading && !activeQuestion) {
     return (
@@ -147,7 +174,7 @@ export default function StudentGamePage({ params }: StudentGameProps) {
           <div className="flex-1">
             <QuestionProgress
               currentIndex={session.current_question_index}
-              totalQuestions={totalQuestions || 20}
+              totalQuestions={totalQuestions ?? undefined}
               difficulty={activeQuestion?.difficulty}
               points={activeQuestion?.points}
             />
@@ -192,7 +219,11 @@ export default function StudentGamePage({ params }: StudentGameProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-2">
             {activeQuestion.options.map((option, idx) => {
               const isSelected = selectedOptionId === option.id;
-              const isCorrect = isRevealed && (lastAnswerResult?.is_correct && isSelected);
+              // БАГ 4 фикс: подсвечиваем правильный ответ если знаем его id (даже при timeout)
+              const isCorrect = isRevealed && (
+                option.id === correctOptionId ||
+                (lastAnswerResult?.is_correct === true && isSelected)
+              );
 
               return (
                 <AnswerButton

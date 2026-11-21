@@ -62,8 +62,13 @@ export function useGameSession(sessionId: string) {
   // Realtime subscription
   useRealtime(sessionId, {
     onSessionUpdate: (updated) => {
-      setSession(updated);
-      // Data already arrives via realtime — no cascade refetch needed here.
+      setSession((prev) => {
+        // Сбрасывать счётчик ответов при смене вопроса (баг 6 фикс)
+        if (prev && prev.current_question_id !== updated.current_question_id) {
+          setAnswersCount(0);
+        }
+        return updated;
+      });
     },
     onPlayerJoined: (player) => {
       setPlayers((prev) => {

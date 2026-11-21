@@ -44,8 +44,14 @@ export default function TeacherDashboardPage() {
   };
 
   useEffect(() => {
+    // Проверка авторизации преподавателя
+    const isAuth = typeof window !== 'undefined' && sessionStorage.getItem('chemistry_teacher_auth');
+    if (!isAuth) {
+      router.push('/teacher/login');
+      return;
+    }
     fetchSessions();
-  }, []);
+  }, [router]);
 
   const handleCreateSession = async () => {
     try {

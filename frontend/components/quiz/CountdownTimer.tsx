@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Timer } from '../ui/Timer';
 
 export interface CountdownTimerProps {
@@ -17,8 +17,13 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
   size = 'md',
 }) => {
   const [remaining, setRemaining] = useState<number>(timeLimitSeconds);
+  const onExpireRef = useRef(onExpire);
+  onExpireRef.current = onExpire;
+  const hasExpiredRef = useRef(false);
 
   useEffect(() => {
+    hasExpiredRef.current = false;
+
     if (!startTime) {
       setRemaining(timeLimitSeconds);
       return;
@@ -36,14 +41,15 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
 
       if (leftSec <= 0) {
         clearInterval(interval);
-        if (onExpire) {
-          onExpire();
+        if (!hasExpiredRef.current) {
+          hasExpiredRef.current = true;
+          onExpireRef.current?.();
         }
       }
     }, 100);
 
     return () => clearInterval(interval);
-  }, [startTime, timeLimitSeconds, onExpire]);
+  }, [startTime, timeLimitSeconds]);
 
   return <Timer remainingSeconds={remaining} totalSeconds={timeLimitSeconds} size={size} />;
 };

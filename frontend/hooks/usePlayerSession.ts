@@ -15,11 +15,18 @@ export function usePlayerSession(sessionId: string) {
     new_score: number;
     new_streak: number;
   } | null>(null);
+  // БАГ 4 фикс: хранить correct_option_id чтобы подсвечивать правильный вариант даже при timeout
+  const [correctOptionId, setCorrectOptionId] = useState<string | null>(null);
+  const [isKicked, setIsKicked] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // BUG 6 fix: track previous question id via ref to avoid stale closure in onSessionUpdate
+  // Refs for realtime callbacks to avoid stale closures
   const prevQuestionIdRef = useRef<string | null | undefined>(null);
+  const playerRef = useRef<Player | null>(null);
+  playerRef.current = player;
+  const correctOptionIdRef = useRef<string | null>(null);
+  correctOptionIdRef.current = correctOptionId;
 
   // Restore player info from sessionStorage
   useEffect(() => {
@@ -57,20 +64,47 @@ export function usePlayerSession(sessionId: string) {
   // Realtime updates
   useRealtime(sessionId, {
     onSessionUpdate: (updatedSession) => {
-      // BUG 6 fix: compare via ref (not stale `session` from closure)
+      // При смене вопроса сбрасываем состояние ответа
       if (prevQuestionIdRef.current !== updatedSession.current_question_id) {
         setHasAnswered(false);
         setLastAnswerResult(null);
+        setCorrectOptionId(null);
       }
       prevQuestionIdRef.current = updatedSession.current_question_id;
       setSession(updatedSession);
+
+      // Если ведущий перешел к разбору ответа, а игрок не отвечал (таймаут) — получаем правильный ответ
+      if (
+        (updatedSession.status === 'question_review' || updatedSession.status === 'leaderboard') &&
+        updatedSession.current_question_id &&
+        !correctOptionIdRef.current
+      ) {
+        fetch(`/api/sessions/${sessionId}/stats/${updatedSession.current_question_id}`)
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.success && data.data?.correctOptionId) {
+              setCorrectOptionId(data.data.correctOptionId);
+            }
+          })
+          .catch(() => {});
+      }
     },
     onPlayerUpdated: (updatedPlayer) => {
-      if (player && updatedPlayer.id === player.id) {
+      if (playerRef.current && updatedPlayer.id === playerRef.current.id) {
         setPlayer(updatedPlayer);
         try {
           sessionStorage.setItem(`chemistry_player_${sessionId}`, JSON.stringify(updatedPlayer));
         } catch {}
+      }
+    },
+    onPlayerLeft: (kickedPlayerId) => {
+      // Если ведущий исключил текущего игрока
+      if (playerRef.current && kickedPlayerId === playerRef.current.id) {
+        try {
+          sessionStorage.removeItem(`chemistry_player_${sessionId}`);
+        } catch {}
+        setPlayer(null);
+        setIsKicked(true);
       }
     },
   });
@@ -100,6 +134,11 @@ export function usePlayerSession(sessionId: string) {
     setHasAnswered(true);
     setLastAnswerResult(data.data);
 
+    // Сохраняем correct_option_id для подсветки правильного ответа
+    if (data.data.correct_option_id) {
+      setCorrectOptionId(data.data.correct_option_id);
+    }
+
     // Update local score
     setPlayer((prev) =>
       prev
@@ -126,6 +165,8 @@ export function usePlayerSession(sessionId: string) {
     session,
     hasAnswered,
     lastAnswerResult,
+    correctOptionId,
+    isKicked,
     isLoading,
     error,
     submitAnswer,

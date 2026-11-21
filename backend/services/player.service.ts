@@ -19,6 +19,11 @@ export class PlayerService {
       throw new Error('Игра уже началась или завершена. Вход невозможен');
     }
 
+    // БАГ 5 фикс: проверяем блокировку комнаты
+    if (session.is_locked) {
+      throw new Error('Ведущий закрыл комнату. Новые игроки не могут присоединиться');
+    }
+
     const player = await PlayerRepository.createPlayer(session.id, nickname);
 
     return { session, player };

@@ -18,6 +18,7 @@ export interface GameSession {
   host_id: string | null;
   pin_code: string;
   status: GameStatus;
+  is_locked: boolean;
   current_question_id: string | null;
   current_question_index: number;
   question_start_time: string | null; // ISO timestamp

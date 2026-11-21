@@ -1,6 +1,7 @@
 'use client';
 
-import React, { use } from 'react';
+import React, { use, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/frontend/components/ui/Button';
 import { LoadingSpinner } from '@/frontend/components/ui/LoadingSpinner';
@@ -17,7 +18,16 @@ interface ResultsPageProps {
 
 export default function TeacherResultsPage({ params }: ResultsPageProps) {
   const { sessionId } = use(params);
+  const router = useRouter();
   const { leaderboard, results, isLoading, error, refetch } = useLeaderboard(sessionId);
+
+  // Защита маршрута: проверка авторизации преподавателя
+  useEffect(() => {
+    const isAuth = typeof window !== 'undefined' && sessionStorage.getItem('chemistry_teacher_auth');
+    if (!isAuth) {
+      router.push('/teacher/login');
+    }
+  }, [router]);
 
   if (isLoading && leaderboard.length === 0) {
     return (
