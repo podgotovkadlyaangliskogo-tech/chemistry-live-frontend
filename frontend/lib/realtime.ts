@@ -11,99 +11,179 @@ export interface RealtimeGameEvents {
   onAnswerSubmitted?: (answer: PlayerAnswer) => void;
 }
 
+interface RoomSubscription {
+  channel: RealtimeChannel;
+  subscribers: Set<RealtimeGameEvents>;
+  cleanupTimer?: ReturnType<typeof setTimeout>;
+}
+
+// Реестр активных комнат на клиенте (один канал на сессию для всех хуков на странице)
+const activeRooms = new Map<string, RoomSubscription>();
+
 export function subscribeToGame(
   sessionId: string,
   handlers: RealtimeGameEvents
 ): { channel: RealtimeChannel; unsubscribe: () => void } {
   const supabase = createClient();
-  // Unique channel name per subscriber to prevent collisions when multiple hooks subscribe simultaneously
-  const uniqueId = Math.random().toString(36).substring(2, 9);
-  const channelName = `game_room_${sessionId}_${uniqueId}`;
+  let room = activeRooms.get(sessionId);
 
-  const channel = supabase
-    .channel(channelName)
-    // 1. Listen to game session changes (status, question, time)
-    .on(
-      'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: 'game_sessions',
-        filter: `id=eq.${sessionId}`,
-      },
-      (payload) => {
-        if (payload.new && handlers.onSessionUpdate) {
-          handlers.onSessionUpdate(payload.new as GameSession);
+  // Если для этой сессии был запланирован демонтаж канала (при переходе со страницы на страницу) — отменяем его
+  if (room?.cleanupTimer) {
+    clearTimeout(room.cleanupTimer);
+    room.cleanupTimer = undefined;
+  }
+
+  if (!room) {
+    const channelName = `game_room_${sessionId}`;
+    const subscribers = new Set<RealtimeGameEvents>();
+
+    // Создаем канал ровно ОДИН РАЗ со всеми обработчиками
+    const channel = supabase
+      .channel(channelName)
+      // 1. Изменения игровой сессии (статус, активный вопрос, таймер)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'game_sessions',
+          filter: `id=eq.${sessionId}`,
+        },
+        (payload) => {
+          if (payload.new) {
+            subscribers.forEach((h) => {
+              try {
+                h.onSessionUpdate?.(payload.new as GameSession);
+              } catch (err) {
+                console.error('[Realtime] Error in onSessionUpdate handler:', err);
+              }
+            });
+          }
         }
-      }
-    )
-    // 2. Listen to players joining, updating score, or disconnecting
-    .on(
-      'postgres_changes',
-      {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'players',
-        filter: `session_id=eq.${sessionId}`,
-      },
-      (payload) => {
-        if (payload.new && handlers.onPlayerJoined) {
-          handlers.onPlayerJoined(payload.new as Player);
+      )
+      // 2. Игроки (подключение)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'players',
+          filter: `session_id=eq.${sessionId}`,
+        },
+        (payload) => {
+          if (payload.new) {
+            subscribers.forEach((h) => {
+              try {
+                h.onPlayerJoined?.(payload.new as Player);
+              } catch (err) {
+                console.error('[Realtime] Error in onPlayerJoined handler:', err);
+              }
+            });
+          }
         }
-      }
-    )
-    .on(
-      'postgres_changes',
-      {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'players',
-        filter: `session_id=eq.${sessionId}`,
-      },
-      (payload) => {
-        if (payload.new && handlers.onPlayerUpdated) {
-          handlers.onPlayerUpdated(payload.new as Player);
+      )
+      // 3. Игроки (обновление очков, стрика)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'players',
+          filter: `session_id=eq.${sessionId}`,
+        },
+        (payload) => {
+          if (payload.new) {
+            subscribers.forEach((h) => {
+              try {
+                h.onPlayerUpdated?.(payload.new as Player);
+              } catch (err) {
+                console.error('[Realtime] Error in onPlayerUpdated handler:', err);
+              }
+            });
+          }
         }
-      }
-    )
-    .on(
-      'postgres_changes',
-      {
-        event: 'DELETE',
-        schema: 'public',
-        table: 'players',
-        filter: `session_id=eq.${sessionId}`,
-      },
-      (payload) => {
-        if (payload.old && (payload.old as { id?: string }).id && handlers.onPlayerLeft) {
-          handlers.onPlayerLeft((payload.old as { id: string }).id);
+      )
+      // 4. Игроки (удаление / исключение)
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'players',
+          filter: `session_id=eq.${sessionId}`,
+        },
+        (payload) => {
+          const oldId = (payload.old as { id?: string })?.id;
+          if (oldId) {
+            subscribers.forEach((h) => {
+              try {
+                h.onPlayerLeft?.(oldId);
+              } catch (err) {
+                console.error('[Realtime] Error in onPlayerLeft handler:', err);
+              }
+            });
+          }
         }
-      }
-    )
-    // 3. Listen to player answers count / events
-    .on(
-      'postgres_changes',
-      {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'player_answers',
-        filter: `session_id=eq.${sessionId}`,
-      },
-      (payload) => {
-        if (payload.new && handlers.onAnswerSubmitted) {
-          handlers.onAnswerSubmitted(payload.new as PlayerAnswer);
+      )
+      // 5. Ответы участников (подсчет количества ответивших)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'player_answers',
+          filter: `session_id=eq.${sessionId}`,
+        },
+        (payload) => {
+          if (payload.new) {
+            subscribers.forEach((h) => {
+              try {
+                h.onAnswerSubmitted?.(payload.new as PlayerAnswer);
+              } catch (err) {
+                console.error('[Realtime] Error in onAnswerSubmitted handler:', err);
+              }
+            });
+          }
         }
+      );
+
+    channel.subscribe((status, err) => {
+      if (err) {
+        console.warn(`[Realtime] Subscription error on channel ${channelName}:`, err);
       }
-    )
-    .subscribe();
+    });
+
+    room = {
+      channel,
+      subscribers,
+    };
+    activeRooms.set(sessionId, room);
+  }
+
+  // Добавляем обработчик текущего подписчика в набор
+  room.subscribers.add(handlers);
 
   return {
-    channel,
+    channel: room.channel,
     unsubscribe: () => {
-      try {
-        supabase.removeChannel(channel);
-      } catch (err) {
-        console.warn('Error removing channel:', err);
+      const currentRoom = activeRooms.get(sessionId);
+      if (!currentRoom) return;
+
+      currentRoom.subscribers.delete(handlers);
+
+      // Если все подписчики на странице отключились — даем 500мс буфер перед закрытием сокета
+      // (предотвращает разрыв соединения при мгновенном переходе между страницами lobby -> game)
+      if (currentRoom.subscribers.size === 0) {
+        currentRoom.cleanupTimer = setTimeout(() => {
+          if (currentRoom.subscribers.size === 0) {
+            try {
+              supabase.removeChannel(currentRoom.channel);
+            } catch (err) {
+              console.warn('[Realtime] Error removing channel:', err);
+            }
+            activeRooms.delete(sessionId);
+          }
+        }, 500);
       }
     },
   };
