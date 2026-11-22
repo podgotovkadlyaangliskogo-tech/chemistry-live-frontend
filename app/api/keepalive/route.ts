@@ -22,11 +22,17 @@ export async function GET() {
     results['chemistry-live'] = { error: err.message };
   }
 
-  // 2. Ping EndlessX Supabase (Aral project)
+  // 2. Ping EndlessX Supabase (Aral tourist platform)
   try {
     const endlessRes = await fetch(
-      'https://ythdfltgdvfjllgyutnz.supabase.co/rest/v1/',
-      { cache: 'no-store' }
+      'https://ythdfltgdvfjllgyutnz.supabase.co/rest/v1/badges?select=id&limit=1',
+      {
+        headers: {
+          apikey: 'sb_publishable_1cvvhxJMGg3E-vtqjeW04w_J1NIsNOg',
+          Authorization: 'Bearer sb_publishable_1cvvhxJMGg3E-vtqjeW04w_J1NIsNOg',
+        },
+        cache: 'no-store',
+      }
     );
     results['EndlessX'] = { status: endlessRes.status, ok: endlessRes.ok };
   } catch (err: any) {
