@@ -29,7 +29,10 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
       return;
     }
 
-    const startTimestamp = new Date(startTime).getTime();
+    const rawStart = startTime.endsWith('Z') || startTime.includes('+') || startTime.includes('-', 10)
+      ? startTime
+      : startTime + 'Z'; // Supabase может вернуть время без Z — добавляем UTC суффикс
+    const startTimestamp = new Date(rawStart).getTime();
     const durationMs = timeLimitSeconds * 1000;
 
     const interval = setInterval(() => {

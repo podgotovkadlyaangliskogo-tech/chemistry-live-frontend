@@ -10,7 +10,11 @@ export function useTimer(startTime: string | null | undefined, timeLimitSeconds:
     if (!startTime) {
       return timeLimitSeconds;
     }
-    const start = new Date(startTime).getTime();
+    // Supabase может вернуть timestamp без 'Z' — нормализуем к UTC
+    const rawStart = startTime.endsWith('Z') || startTime.includes('+') || startTime.includes('-', 10)
+      ? startTime
+      : startTime + 'Z';
+    const start = new Date(rawStart).getTime();
     const durationMs = timeLimitSeconds * 1000;
     const elapsed = Date.now() - start;
     const leftMs = durationMs - elapsed;
