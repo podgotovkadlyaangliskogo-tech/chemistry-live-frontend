@@ -54,11 +54,9 @@ export function usePlayerSession(sessionId: string) {
         setTotalQuestions(data.data.totalQuestions || 0);
         // Seed ref so the first realtime update compares against the actual current question
         prevQuestionIdRef.current = data.data.session?.current_question_id ?? null;
-      } else {
-        setError(data.error || 'Ошибка загрузки сессии');
       }
     } catch {
-      setError('Ошибка подключения');
+      // Fail silently — не ставим error state чтобы не ломать порядок хуков в рендере
     } finally {
       setIsLoading(false);
     }

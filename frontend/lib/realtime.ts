@@ -152,7 +152,7 @@ function makeUnsubscribe(
           try { supabase.removeChannel(current.channel); } catch { /* ignore */ }
           activeRooms.delete(sessionId);
         }
-      }, 800);
+      }, 2000);
     }
   };
 }
