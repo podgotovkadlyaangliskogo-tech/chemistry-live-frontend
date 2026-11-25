@@ -9,15 +9,7 @@ import { LoadingSpinner } from '@/frontend/components/ui/LoadingSpinner';
 import { ErrorMessage } from '@/frontend/components/ui/ErrorMessage';
 import { SessionCard } from '@/frontend/components/teacher/SessionCard';
 import { GameSession } from '@/shared/types/game.types';
-import {
-  Atom,
-  PlusCircle,
-  BookOpen,
-  Sparkles,
-  RefreshCw,
-  LogOut,
-  Layers
-} from 'lucide-react';
+import { Plus, RefreshCw, LogOut, FlaskConical } from 'lucide-react';
 
 export default function TeacherDashboardPage() {
   const router = useRouter();
@@ -32,9 +24,7 @@ export default function TeacherDashboardPage() {
       setError(null);
       const res = await fetch('/api/sessions');
       const data = await res.json();
-      if (!data.success) {
-        throw new Error(data.error || 'Ошибка загрузки сессий');
-      }
+      if (!data.success) throw new Error(data.error || 'Ошибка загрузки сессий');
       setSessions(data.data.sessions || []);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Ошибка подключения');
@@ -44,8 +34,8 @@ export default function TeacherDashboardPage() {
   };
 
   useEffect(() => {
-    // Проверка авторизации преподавателя
-    const isAuth = typeof window !== 'undefined' && sessionStorage.getItem('chemistry_teacher_auth');
+    const isAuth =
+      typeof window !== 'undefined' && sessionStorage.getItem('chemistry_teacher_auth');
     if (!isAuth) {
       router.push('/teacher/login');
       return;
@@ -57,20 +47,14 @@ export default function TeacherDashboardPage() {
     try {
       setIsCreating(true);
       setError(null);
-
       const res = await fetch('/api/sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
       });
-
       const data = await res.json();
-      if (!data.success) {
-        throw new Error(data.error || 'Не удалось создать сессию');
-      }
-
-      const sessionId = data.data.session.id;
-      router.push(`/teacher/session/${sessionId}/lobby`);
+      if (!data.success) throw new Error(data.error || 'Не удалось создать сессию');
+      router.push(`/teacher/session/${data.data.session.id}/lobby`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Ошибка создания');
       setIsCreating(false);
@@ -83,107 +67,86 @@ export default function TeacherDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] text-white flex flex-col">
-      {/* Header */}
-      <header className="bg-[#0A0E1A]/85 backdrop-blur-xl border-b border-white/[0.08] sticky top-0 z-30">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#4F8EF7] to-[#39D98A] flex items-center justify-center shadow-[0_0_15px_rgba(79,142,247,0.4)]">
-                <Atom className="w-5 h-5 text-white animate-spin" style={{ animationDuration: '12s' }} />
-              </div>
-              <span className="font-black text-lg text-white">
-                Chemistry<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4F8EF7] to-[#39D98A]">Live</span>
-              </span>
-            </Link>
-            <span className="text-slate-600 font-bold hidden sm:inline">/</span>
-            <span className="text-xs font-bold text-slate-300 bg-white/[0.05] border border-white/10 px-2.5 py-1 rounded-lg hidden sm:inline">
-              Кабинет преподавателя
-            </span>
-          </div>
+    <div className="min-h-screen bg-[#09090B] text-[#F5F4F0] flex flex-col">
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-white px-3 py-2 rounded-xl hover:bg-white/[0.06] transition-colors cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Выйти</span>
-            </button>
-          </div>
+      {/* Header */}
+      <header className="border-b border-white/[0.06] sticky top-0 z-30 bg-[#09090B]/90 backdrop-blur-xl">
+        <div className="max-w-5xl mx-auto px-5 h-14 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 group">
+            <FlaskConical className="w-5 h-5 text-[#E8C547]" />
+            <span className="font-sans font-bold text-[#F5F4F0] text-sm">
+              Chemistry<span className="text-[#E8C547]">Live</span>
+            </span>
+          </Link>
+
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 text-xs text-[#71717A] hover:text-[#F5F4F0] transition-colors px-3 py-2 rounded-lg hover:bg-white/[0.05]"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            Выйти
+          </button>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-10 flex-1">
-        {/* Banner with Action */}
-        <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-[#121A30] via-[#10172A] to-[#121A30] border border-white/10 shadow-[0_12px_45px_rgba(0,0,0,0.5)] mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative overflow-hidden">
-          <div className="relative z-10">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#39D98A]/10 text-[#39D98A] border border-[#39D98A]/25 mb-3">
-              <Sparkles className="w-3.5 h-3.5" />
-              Готовый интерактивный модуль
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-2">
-              Тематическая викторина: «Каучук и резина»
+      <main className="max-w-5xl w-full mx-auto px-5 py-10 flex-1">
+
+        {/* Top banner */}
+        <div className="rounded-2xl border border-white/[0.07] bg-[#111117] p-6 sm:p-8 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div>
+            <p className="font-mono text-xs text-[#71717A] uppercase tracking-widest mb-2">Активный модуль</p>
+            <h1 className="font-sans font-extrabold text-xl sm:text-2xl text-[#F5F4F0] leading-tight tracking-tight">
+              «Каучук и резина»
             </h1>
-            <p className="text-sm text-slate-400 max-w-xl font-normal leading-relaxed">
-              20 научно выверенных вопросов с формулами, реакциями вулканизации и синтеза полимеров.
-              10 базовых, 5 средних и 5 олимпиадных задач.
+            <p className="text-sm text-[#71717A] mt-1.5 max-w-md">
+              20 вопросов · формулы реакций вулканизации · базовый, продвинутый, олимпиадный уровень
             </p>
           </div>
-
-          <div className="shrink-0 relative z-10">
-            <Button
-              size="lg"
-              onClick={handleCreateSession}
-              isLoading={isCreating}
-              className="w-full sm:w-auto shadow-[0_0_25px_rgba(79,142,247,0.4)]"
-            >
-              <PlusCircle className="w-5 h-5 mr-2" />
-              <span>Создать новую сессию</span>
+          <div className="shrink-0">
+            <Button size="lg" onClick={handleCreateSession} isLoading={isCreating}>
+              <Plus className="w-4 h-4 mr-2" />
+              Создать сессию
             </Button>
           </div>
         </div>
 
         {error && <ErrorMessage message={error} onRetry={fetchSessions} className="mb-6" />}
 
-        {/* Sessions List */}
-        <div className="space-y-4">
+        {/* Sessions */}
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <h2 className="text-lg font-black text-white">Игровые сессии</h2>
-              <span className="text-xs font-bold text-slate-300 bg-white/[0.08] px-2.5 py-0.5 rounded-full font-mono">
+              <h2 className="font-sans font-bold text-sm text-[#F5F4F0]">Сессии</h2>
+              <span className="font-mono text-xs text-[#71717A] bg-white/[0.06] px-2 py-0.5 rounded-md">
                 {sessions.length}
               </span>
             </div>
-
-            <Button
-              variant="secondary"
-              size="sm"
+            <button
               onClick={fetchSessions}
               disabled={isLoading}
+              className="flex items-center gap-1.5 text-xs text-[#71717A] hover:text-[#F5F4F0] transition-colors px-3 py-1.5 rounded-lg hover:bg-white/[0.05]"
             >
-              <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               Обновить
-            </Button>
+            </button>
           </div>
 
           {isLoading ? (
-            <LoadingSpinner label="Загрузка сессий..." />
+            <LoadingSpinner label="Загружаем сессии..." />
           ) : sessions.length === 0 ? (
-            <Card className="text-center py-14 px-4 border-dashed border-2 border-white/10 bg-white/[0.02]">
-              <BookOpen className="w-10 h-10 text-slate-500 mx-auto mb-3" />
-              <h3 className="text-base font-bold text-slate-300">У вас пока нет активных сессий</h3>
-              <p className="text-sm text-slate-500 mt-1 mb-6 max-w-sm mx-auto">
-                Создайте первую сессию, чтобы ученики могли подключиться по 6-значному PIN-коду
+            <Card className="text-center py-16 px-5 border-dashed border border-white/[0.07] bg-transparent">
+              <FlaskConical className="w-8 h-8 text-[#71717A] mx-auto mb-3" />
+              <p className="text-sm font-semibold text-[#71717A]">Нет активных сессий</p>
+              <p className="text-xs text-[#71717A]/60 mt-1 mb-6 max-w-xs mx-auto">
+                Создайте первую сессию — ученики подключатся по PIN-коду
               </p>
-              <Button onClick={handleCreateSession} isLoading={isCreating}>
-                <PlusCircle className="w-4 h-4 mr-2" />
+              <Button onClick={handleCreateSession} isLoading={isCreating} size="sm">
+                <Plus className="w-3.5 h-3.5 mr-1.5" />
                 Создать сессию
               </Button>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 gap-3.5">
+            <div className="flex flex-col gap-2.5">
               {sessions.map((sess) => (
                 <SessionCard key={sess.id} session={sess} />
               ))}

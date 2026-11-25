@@ -8,7 +8,7 @@ import { Button } from '@/frontend/components/ui/Button';
 import { PinInput } from '@/frontend/components/student/PinInput';
 import { NicknameInput } from '@/frontend/components/student/NicknameInput';
 import { ErrorMessage } from '@/frontend/components/ui/ErrorMessage';
-import { Atom, Zap, ArrowLeft, Sparkles, ShieldCheck } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 function JoinForm() {
   const router = useRouter();
@@ -59,10 +59,7 @@ function JoinForm() {
       }
 
       const { session, player } = data.data;
-
-      // Save player info in sessionStorage
       sessionStorage.setItem(`chemistry_player_${session.id}`, JSON.stringify(player));
-
       router.push(`/play/${session.id}/waiting`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Ошибка подключения к комнате');
@@ -72,68 +69,53 @@ function JoinForm() {
   };
 
   return (
-    <Card className="max-w-md w-full p-6 sm:p-9 bg-[#10172A]/90 border border-white/[0.08] shadow-[0_12px_45px_rgba(0,0,0,0.5)]">
-      <div className="text-center mb-7">
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#4F8EF7] to-[#39D98A] text-white flex items-center justify-center mx-auto mb-4 shadow-[0_0_24px_rgba(79,142,247,0.4)]">
-          <Atom className="w-7 h-7 animate-spin" style={{ animationDuration: '10s' }} />
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+    <Card className="max-w-md w-full px-7 py-8 bg-[#111117] border border-white/[0.07] shadow-[0_24px_64px_rgba(0,0,0,0.6)]">
+      {/* Заголовок */}
+      <div className="mb-7">
+        <h1 className="font-sans font-extrabold text-2xl text-[#F5F4F0] tracking-tight leading-tight">
           Вход в викторину
         </h1>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1.5">
-          Введи 6 цифр PIN-кода, отображаемого на экране учителя
+        <p className="text-sm text-[#71717A] mt-1.5 leading-relaxed">
+          Введи PIN-код с экрана учителя и придумай никнейм
         </p>
       </div>
 
-      {error && <ErrorMessage message={error} className="mb-6" />}
+      {error && <ErrorMessage message={error} className="mb-5" />}
 
-      <form onSubmit={handleJoin} className="space-y-6">
-        <PinInput
-          value={pin}
-          onChange={setPin}
-          disabled={isLoading}
-        />
-
-        <NicknameInput
-          value={nickname}
-          onChange={setNickname}
-          disabled={isLoading}
-        />
+      <form onSubmit={handleJoin} className="space-y-5">
+        <PinInput value={pin} onChange={setPin} disabled={isLoading} />
+        <NicknameInput value={nickname} onChange={setNickname} disabled={isLoading} />
 
         <Button
           type="submit"
-          size="xl"
+          size="lg"
           isLoading={isLoading}
           disabled={pin.length !== 6 || nickname.trim().length < 2}
-          className="w-full font-black text-base sm:text-lg shadow-[0_0_25px_rgba(79,142,247,0.4)]"
+          className="w-full mt-1"
         >
-          <Zap className="w-5 h-5 mr-2 text-amber-300" />
-          <span>Присоединиться к игре</span>
+          Войти в игру
         </Button>
       </form>
 
-      <div className="mt-8 pt-5 border-t border-white/[0.08] text-center">
-        <p className="text-xs text-slate-400 flex items-center justify-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Мгновенный вход без регистрации и паролей</span>
-        </p>
-      </div>
+      <p className="mt-6 text-center text-xs text-[#71717A]">
+        Без регистрации и пароля
+      </p>
     </Card>
   );
 }
 
 export default function StudentJoinPage() {
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-10 bg-[#0A0E1A]">
+    <div className="min-h-dvh flex flex-col justify-center items-center px-4 py-10 bg-[#09090B]">
       <Link
         href="/"
-        className="inline-flex items-center text-xs sm:text-sm font-bold text-slate-400 hover:text-white mb-6 transition-colors group"
+        className="inline-flex items-center text-xs text-[#71717A] hover:text-[#F5F4F0] mb-6 transition-colors group"
       >
-        <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-        <span>Вернуться на главную</span>
+        <ArrowLeft className="w-3.5 h-3.5 mr-1.5 group-hover:-translate-x-0.5 transition-transform" />
+        На главную
       </Link>
 
-      <Suspense fallback={<Card className="max-w-md w-full p-8 text-center text-slate-400">Загрузка...</Card>}>
+      <Suspense fallback={<Card className="max-w-md w-full p-8 text-center text-[#71717A]">Загрузка...</Card>}>
         <JoinForm />
       </Suspense>
     </div>

@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
-import { Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import { Syne, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const spaceGrotesk = Space_Grotesk({
+const syne = Syne({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
+  weight: ['400', '500', '600', '700', '800'],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -15,9 +16,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Chemistry Live — Интерактивные викторины по химии в реальном времени',
+  title: 'Chemistry Live — живые викторины по химии',
   description:
-    'Образовательная платформа для проведения захватывающих live-квизов по органической химии в стиле Kahoot с мгновенной синхронизацией.',
+    'Интерактивная платформа для проведения live-квизов по органической химии. Ученики отвечают со смартфонов, учитель видит результаты в реальном времени.',
 };
 
 export default function RootLayout({
@@ -26,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen bg-[#0A0E1A] text-[#F0F4FF] antialiased selection:bg-[#4F8EF7]/30 selection:text-white">
+    <html lang="ru" className={`${syne.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-screen bg-[#09090B] text-[#F5F4F0] antialiased selection:bg-[#E8C547]/25 selection:text-[#F5F4F0]">
         {children}
       </body>
     </html>

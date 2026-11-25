@@ -13,36 +13,37 @@ export const Timer: React.FC<TimerProps> = ({
 }) => {
   const percentage = Math.max(0, Math.min(100, (remainingSeconds / (totalSeconds || 1)) * 100));
   const isUrgent = remainingSeconds <= 5 && remainingSeconds > 0;
+  const isWarning = remainingSeconds <= 10 && remainingSeconds > 5;
 
-  const colorStyles = isUrgent
-    ? 'text-[#FF4757] bg-[#FF4757]/15 border-[#FF4757]/40 shadow-[0_0_20px_rgba(255,71,87,0.4)] animate-pulse'
-    : remainingSeconds <= 10
-    ? 'text-[#FFB800] bg-[#FFB800]/15 border-[#FFB800]/40 shadow-[0_0_15px_rgba(255,184,0,0.3)]'
-    : 'text-[#4F8EF7] bg-[#4F8EF7]/15 border-[#4F8EF7]/40 shadow-[0_0_15px_rgba(79,142,247,0.3)]';
+  // Цвет индикатора
+  const ringColor = isUrgent
+    ? 'text-red-400 border-red-500/50 bg-red-500/10'
+    : isWarning
+    ? 'text-[#E8C547] border-[#E8C547]/50 bg-[#E8C547]/10'
+    : 'text-[#5B8FF9] border-[#5B8FF9]/30 bg-[#5B8FF9]/8';
+
+  const barColor = isUrgent
+    ? 'bg-red-500'
+    : isWarning
+    ? 'bg-[#E8C547]'
+    : 'bg-[#5B8FF9]';
 
   const sizeClasses = {
-    sm: 'w-10 h-10 text-sm font-bold',
-    md: 'w-16 h-16 text-xl font-black',
-    lg: 'w-24 h-24 text-3xl font-black',
+    sm: 'w-10 h-10 text-sm',
+    md: 'w-14 h-14 text-xl',
+    lg: 'w-20 h-20 text-3xl',
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center gap-2">
       <div
-        className={`flex items-center justify-center rounded-2xl border-2 transition-all duration-300 font-mono ${colorStyles} ${sizeClasses[size]}`}
+        className={`flex items-center justify-center rounded-xl border-2 font-mono font-bold tabular-nums transition-colors duration-300 ${ringColor} ${sizeClasses[size]} ${isUrgent ? 'animate-pulse' : ''}`}
       >
-        <span>{Math.max(0, Math.ceil(remainingSeconds))}</span>
+        {Math.max(0, Math.ceil(remainingSeconds))}
       </div>
-      {/* Progress bar below */}
-      <div className="w-full bg-white/[0.08] h-1.5 rounded-full mt-2.5 overflow-hidden max-w-xs">
+      <div className="w-full bg-white/[0.07] h-1 rounded-full overflow-hidden max-w-[3rem]">
         <div
-          className={`h-full transition-all duration-300 rounded-full ${
-            isUrgent
-              ? 'bg-[#FF4757] shadow-[0_0_8px_rgba(255,71,87,0.8)]'
-              : remainingSeconds <= 10
-              ? 'bg-[#FFB800]'
-              : 'bg-[#4F8EF7]'
-          }`}
+          className={`h-full transition-all duration-300 rounded-full ${barColor}`}
           style={{ width: `${percentage}%` }}
         />
       </div>
