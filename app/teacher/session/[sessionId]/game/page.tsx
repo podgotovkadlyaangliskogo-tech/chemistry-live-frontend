@@ -80,31 +80,7 @@ export default function TeacherGamePage({ params }: GamePageProps) {
     }
   }, [session?.status, sessionId, router]);
 
-  if (isLoading && !session) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A]">
-        <LoadingSpinner label="Загрузка сессии викторины..." size="lg" />
-      </div>
-    );
-  }
-
-  if (error || !session) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#0A0E1A]">
-        <ErrorMessage message={error || 'Сессия не найдена'} />
-        <Link href="/teacher/dashboard" className="mt-4">
-          <Button variant="secondary">Вернуться в дашборд</Button>
-        </Link>
-      </div>
-    );
-  }
-
-  const isRevealed =
-    session.status === 'question_review' || session.status === 'leaderboard';
-  const isLeaderboardPhase = session.status === 'leaderboard';
-  const isLastQuestion =
-    totalQuestions > 0 && session.current_question_index + 1 >= totalQuestions;
-
+  // ✅ Все useCallback ДОЛЖНЫ быть ДО conditional return (Rules of Hooks)
   const handleReveal = useCallback(async () => {
     try {
       setIsAdvancing(true);
@@ -141,6 +117,31 @@ export default function TeacherGamePage({ params }: GamePageProps) {
       setIsAdvancing(false);
     }
   }, [endGame, router, sessionId]);
+
+  if (isLoading && !session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A]">
+        <LoadingSpinner label="Загрузка сессии викторины..." size="lg" />
+      </div>
+    );
+  }
+
+  if (error || !session) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#0A0E1A]">
+        <ErrorMessage message={error || 'Сессия не найдена'} />
+        <Link href="/teacher/dashboard" className="mt-4">
+          <Button variant="secondary">Вернуться в дашборд</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const isRevealed =
+    session.status === 'question_review' || session.status === 'leaderboard';
+  const isLeaderboardPhase = session.status === 'leaderboard';
+  const isLastQuestion =
+    totalQuestions > 0 && session.current_question_index + 1 >= totalQuestions;
 
   return (
     <div className="min-h-screen bg-[#0A0E1A] text-white flex flex-col">
