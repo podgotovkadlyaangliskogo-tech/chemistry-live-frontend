@@ -12,7 +12,6 @@ import { CountdownTimer } from '@/frontend/components/quiz/CountdownTimer';
 import { QuestionProgress } from '@/frontend/components/quiz/QuestionProgress';
 import { AnswerResult } from '@/frontend/components/student/AnswerResult';
 import { usePlayerSession } from '@/frontend/hooks/usePlayerSession';
-import { useGameSession } from '@/frontend/hooks/useGameSession';
 import { Flame, Trophy, Zap, ShieldCheck, UserX } from 'lucide-react';
 import { formatScore } from '@/frontend/lib/formatting';
 
@@ -26,20 +25,17 @@ export default function StudentGamePage({ params }: StudentGameProps) {
 
   const {
     player,
+    session,
+    activeQuestion,
+    totalQuestions,
     hasAnswered,
     lastAnswerResult,
     correctOptionId,
     isKicked,
-    submitAnswer,
-  } = usePlayerSession(sessionId);
-
-  const {
-    session,
-    activeQuestion,
-    totalQuestions,
     isLoading,
     error,
-  } = useGameSession(sessionId);
+    submitAnswer,
+  } = usePlayerSession(sessionId);
 
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);

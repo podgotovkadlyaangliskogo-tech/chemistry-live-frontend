@@ -3,11 +3,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Player } from '@/shared/types/player.types';
 import { GameSession } from '@/shared/types/game.types';
+import { QuestionWithOptions } from '@/shared/types/quiz.types';
 import { useRealtime } from './useRealtime';
 
 export function usePlayerSession(sessionId: string) {
   const [player, setPlayer] = useState<Player | null>(null);
   const [session, setSession] = useState<GameSession | null>(null);
+  const [activeQuestion, setActiveQuestion] = useState<QuestionWithOptions | null>(null);
+  const [totalQuestions, setTotalQuestions] = useState<number>(0);
   const [hasAnswered, setHasAnswered] = useState<boolean>(false);
   const [lastAnswerResult, setLastAnswerResult] = useState<{
     is_correct: boolean;
@@ -47,11 +50,15 @@ export function usePlayerSession(sessionId: string) {
       const data = await res.json();
       if (data.success) {
         setSession(data.data.session);
+        setActiveQuestion(data.data.activeQuestion || null);
+        setTotalQuestions(data.data.totalQuestions || 0);
         // Seed ref so the first realtime update compares against the actual current question
         prevQuestionIdRef.current = data.data.session?.current_question_id ?? null;
+      } else {
+        setError(data.error || 'Ошибка загрузки сессии');
       }
     } catch {
-      // Fail silently on background poll
+      setError('Ошибка подключения');
     } finally {
       setIsLoading(false);
     }
@@ -64,11 +71,21 @@ export function usePlayerSession(sessionId: string) {
   // Realtime updates
   useRealtime(sessionId, {
     onSessionUpdate: (updatedSession) => {
-      // При смене вопроса сбрасываем состояние ответа
+      // При смене вопроса сбрасываем состояние ответа и загружаем новый вопрос
       if (prevQuestionIdRef.current !== updatedSession.current_question_id) {
         setHasAnswered(false);
         setLastAnswerResult(null);
         setCorrectOptionId(null);
+        // Рефетчим сессию чтобы получить новый activeQuestion
+        fetch(`/api/sessions/${sessionId}`)
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.success) {
+              setActiveQuestion(data.data.activeQuestion || null);
+              setTotalQuestions(data.data.totalQuestions || 0);
+            }
+          })
+          .catch(() => {});
       }
       prevQuestionIdRef.current = updatedSession.current_question_id;
       setSession(updatedSession);
@@ -163,6 +180,8 @@ export function usePlayerSession(sessionId: string) {
   return {
     player,
     session,
+    activeQuestion,
+    totalQuestions,
     hasAnswered,
     lastAnswerResult,
     correctOptionId,
