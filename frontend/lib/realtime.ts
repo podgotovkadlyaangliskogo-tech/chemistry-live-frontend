@@ -20,6 +20,9 @@ interface RoomSubscription {
 // Реестр активных комнат на клиенте (один канал на сессию для всех хуков на странице)
 const activeRooms = new Map<string, RoomSubscription>();
 
+// Счётчик для гарантии уникальных имён каналов при пересоздании
+let channelCounter = 0;
+
 export function subscribeToGame(
   sessionId: string,
   handlers: RealtimeGameEvents
@@ -33,8 +36,19 @@ export function subscribeToGame(
     room.cleanupTimer = undefined;
   }
 
+  // Если канал существует, но уже закрыт/убран (например, после React Strict Mode двойного монтирования) —
+  // удаляем протухшую запись и создаём свежий канал
+  if (room) {
+    const state = (room.channel as unknown as { state?: string }).state;
+    if (state === 'closed' || state === 'errored') {
+      try { supabase.removeChannel(room.channel); } catch { /* ignore */ }
+      activeRooms.delete(sessionId);
+      room = undefined;
+    }
+  }
+
   if (!room) {
-    const channelName = `game_room_${sessionId}`;
+    const channelName = `game_room_${sessionId}_${++channelCounter}`;
     const subscribers = new Set<RealtimeGameEvents>();
 
     // Создаем канал ровно ОДИН РАЗ со всеми обработчиками
