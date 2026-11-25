@@ -256,6 +256,20 @@ export default function TeacherGamePage({ params }: GamePageProps) {
           )
         )}
 
+        {/* Правильный ответ — только для учителя, тихо */}
+        {activeQuestion && session.status !== 'leaderboard' && (() => {
+          const correctOpt = activeQuestion.options.find((o) => (o as { is_correct?: boolean }).is_correct);
+          return correctOpt ? (
+            <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-500/8 border border-emerald-500/20 text-sm text-emerald-400/80 select-none">
+              <svg className="w-3.5 h-3.5 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="font-medium opacity-70">Ответ:</span>
+              <span className="font-semibold">{correctOpt.text}</span>
+            </div>
+          ) : null;
+        })()}
+
         {/* Teacher Controls Bar */}
         <div className="mt-auto pt-4">
           <QuestionControl

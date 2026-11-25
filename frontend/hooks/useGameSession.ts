@@ -3,12 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { GameSession } from '@/shared/types/game.types';
 import { Player, PlayerAnswer, LeaderboardEntry } from '@/shared/types/player.types';
-import { QuestionWithOptions, QuestionWithCorrectAnswer } from '@/shared/types/quiz.types';
+import { QuestionWithCorrectAnswer } from '@/shared/types/quiz.types';
 import { useRealtime } from './useRealtime';
 
 export function useGameSession(sessionId: string) {
   const [session, setSession] = useState<GameSession | null>(null);
-  const [activeQuestion, setActiveQuestion] = useState<QuestionWithOptions | null>(null);
+  const [activeQuestion, setActiveQuestion] = useState<QuestionWithCorrectAnswer | null>(null);
   const [questionReview, setQuestionReview] = useState<QuestionWithCorrectAnswer | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
   const [answersCount, setAnswersCount] = useState<number>(0);

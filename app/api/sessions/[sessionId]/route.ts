@@ -25,7 +25,8 @@ export async function GET(request: Request, segmentData: Params) {
 
     let activeQuestion = null;
     if (session.current_question_id) {
-      activeQuestion = await QuizRepository.getQuestionWithOptions(session.current_question_id);
+      // Используем getQuestionWithCorrectAnswer — teacher API, is_correct включён
+      activeQuestion = await QuizRepository.getQuestionWithCorrectAnswer(session.current_question_id);
     }
 
     return NextResponse.json({
