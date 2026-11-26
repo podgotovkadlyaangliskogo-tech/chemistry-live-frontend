@@ -18,6 +18,19 @@ export function useGameSession(sessionId: string) {
 
   const abortRef = useRef<AbortController | null>(null);
 
+  // Быстрый фетч только одного вопроса (2 запроса в БД вместо 5+)
+  const fetchQuestion = useCallback(async (questionId: string) => {
+    try {
+      const res = await fetch(`/api/questions/${questionId}?t=1`);
+      const data = await res.json();
+      if (data.success) {
+        setActiveQuestion(data.data.question);
+      }
+    } catch {
+      // silent
+    }
+  }, []);
+
   const fetchSession = useCallback(async () => {
     if (abortRef.current) abortRef.current.abort();
     const ctrl = new AbortController();
@@ -72,8 +85,13 @@ export function useGameSession(sessionId: string) {
       setSession((prev) => {
         if (prev && prev.current_question_id !== updated.current_question_id) {
           setAnswersCount(0);
-          // ✅ FIX: при смене вопроса рефетчим в фоне чтобы получить activeQuestion
-          fetchSession();
+          // ✅ FAST: фетчим только вопрос (2 БД запроса) вместо fetchSession (5+ запросов)
+          if (updated.current_question_id) {
+            setActiveQuestion(null); // очищаем сразу → скелетон на экране
+            fetchQuestion(updated.current_question_id);
+          } else {
+            setActiveQuestion(null);
+          }
         }
         return updated;
       });

@@ -92,17 +92,13 @@ export function usePlayerSession(sessionId: string) {
         setCorrectOptionId(null);
         // Сбрасываем счётчик ответов при смене вопроса
         setAnswersCount(0);
-        // Рефетчим сессию чтобы получить новый activeQuestion
-        fetch(`/api/sessions/${sessionId}`)
+        // ✅ FAST: фетчим только вопрос (2 БД запроса) вместо fetchSession (4+ запросов)
+        setActiveQuestion(null); // очищаем → скелетон сразу виден
+        fetch(`/api/questions/${updatedSession.current_question_id}`)
           .then((r) => r.json())
           .then((data) => {
             if (data.success) {
-              setActiveQuestion(data.data.activeQuestion || null);
-              setTotalQuestions(data.data.totalQuestions || 0);
-              // Обновляем totalPlayers из leaderboard-данных
-              if (Array.isArray(data.data.players)) {
-                setTotalPlayers(data.data.players.length);
-              }
+              setActiveQuestion(data.data.question || null);
             }
           })
           .catch(() => {});

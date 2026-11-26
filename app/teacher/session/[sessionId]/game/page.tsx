@@ -206,55 +206,63 @@ export default function TeacherGamePage({ params }: GamePageProps) {
           <div className="space-y-6 animate-in fade-in duration-300">
             <LeaderboardList entries={leaderboard} />
           </div>
-        ) : (
+        ) : activeQuestion ? (
           /* Phase: Question / Review view */
-          activeQuestion && (
-            <div className="space-y-6">
-              <QuestionCard
-                text={activeQuestion.text}
-                explanation={activeQuestion.explanation}
-                imageUrl={activeQuestion.image_url}
-                isRevealed={isRevealed}
-              />
+          <div className="space-y-6">
+            <QuestionCard
+              text={activeQuestion.text}
+              explanation={activeQuestion.explanation}
+              imageUrl={activeQuestion.image_url}
+              isRevealed={isRevealed}
+            />
 
-              {/* 4 Answer Option Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {activeQuestion.options.map((option, idx) => {
-                  const count = stats.counts[option.id] || 0;
-                  const total = stats.totalAnswers || answersCount || 1;
-                  const pct = total > 0 ? (count / total) * 100 : 0;
-                  const isCorrect = isRevealed && stats.correctOptionId === option.id;
+            {/* 4 Answer Option Buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {activeQuestion.options.map((option, idx) => {
+                const count = stats.counts[option.id] || 0;
+                const total = stats.totalAnswers || answersCount || 1;
+                const pct = total > 0 ? (count / total) * 100 : 0;
+                const isCorrect = isRevealed && stats.correctOptionId === option.id;
 
-                  return (
-                    <AnswerButton
-                      key={option.id}
-                      index={idx}
-                      text={option.text}
-                      color={option.color}
-                      isRevealed={isRevealed}
-                      isCorrect={isCorrect}
-                      disabled={true}
-                      statsCount={isRevealed ? count : undefined}
-                      statsPercentage={isRevealed ? pct : undefined}
-                    />
-                  );
-                })}
-              </div>
-
-              {/* Stats Bar Chart if revealed */}
-              {isRevealed && (
-                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <AnswerStats
-                    options={activeQuestion.options as AnswerOption[]}
-                    counts={stats.counts}
-                    totalAnswers={stats.totalAnswers}
-                    correctOptionId={stats.correctOptionId || undefined}
+                return (
+                  <AnswerButton
+                    key={option.id}
+                    index={idx}
+                    text={option.text}
+                    color={option.color}
+                    isRevealed={isRevealed}
+                    isCorrect={isCorrect}
+                    disabled={true}
+                    statsCount={isRevealed ? count : undefined}
+                    statsPercentage={isRevealed ? pct : undefined}
                   />
-                </div>
-              )}
+                );
+              })}
             </div>
-          )
-        )}
+
+            {/* Stats Bar Chart if revealed */}
+            {isRevealed && (
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <AnswerStats
+                  options={activeQuestion.options as AnswerOption[]}
+                  counts={stats.counts}
+                  totalAnswers={stats.totalAnswers}
+                  correctOptionId={stats.correctOptionId || undefined}
+                />
+              </div>
+            )}
+          </div>
+        ) : session.status !== 'leaderboard' ? (
+          /* Скелетон пока вопрос грузится */
+          <div className="space-y-6 animate-pulse">
+            <div className="w-full h-28 rounded-3xl bg-[#10172A]/90 border border-white/[0.08]" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[0,1,2,3].map((i) => (
+                <div key={i} className="h-20 rounded-2xl bg-[#10172A]/90 border border-white/[0.08]" />
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {/* Правильный ответ — только для учителя, тихо */}
         {activeQuestion && session.status !== 'leaderboard' && (() => {
