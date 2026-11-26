@@ -2,7 +2,6 @@
 
 import React, { use } from 'react';
 import Link from 'next/link';
-import { Card } from '@/frontend/components/ui/Card';
 import { Button } from '@/frontend/components/ui/Button';
 import { LoadingSpinner } from '@/frontend/components/ui/LoadingSpinner';
 import { Podium } from '@/frontend/components/podium/Podium';
@@ -10,7 +9,7 @@ import { LeaderboardList } from '@/frontend/components/leaderboard/LeaderboardLi
 import { useLeaderboard } from '@/frontend/hooks/useLeaderboard';
 import { usePlayerSession } from '@/frontend/hooks/usePlayerSession';
 import { formatScore } from '@/frontend/lib/formatting';
-import { Trophy, Sparkles, Home, Award } from 'lucide-react';
+import { Trophy, Home } from 'lucide-react';
 
 interface StudentResultsProps {
   params: Promise<{ sessionId: string }>;
@@ -23,8 +22,8 @@ export default function StudentResultsPage({ params }: StudentResultsProps) {
 
   if (isLoading && leaderboard.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A] px-4">
-        <LoadingSpinner label="Подсчет финальных итогов..." size="lg" />
+      <div className="min-h-screen flex items-center justify-center bg-[#09090B]">
+        <LoadingSpinner label="Подсчёт финальных итогов..." size="lg" />
       </div>
     );
   }
@@ -32,63 +31,58 @@ export default function StudentResultsPage({ params }: StudentResultsProps) {
   const myRank = leaderboard.findIndex((e) => e.playerId === player?.id) + 1;
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] text-white flex flex-col justify-between p-4 sm:p-8 max-w-3xl mx-auto w-full">
-      <div className="space-y-8">
-        {/* Celebration Banner */}
-        <div className="text-center pt-4">
-          <span className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-xs font-bold bg-[#FFB800]/15 text-[#FFB800] border border-[#FFB800]/30 mb-3 shadow-[0_0_15px_rgba(255,184,0,0.3)]">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            Викторина завершена
-          </span>
-          <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-            Финальные итоги
-          </h1>
+    <div className="min-h-screen bg-[#09090B] text-[#F5F4F0] flex flex-col max-w-2xl mx-auto w-full px-4 py-10">
+      {/* Заголовок */}
+      <div className="text-center mb-10">
+        <div className="w-14 h-14 rounded-2xl bg-[#E8C547] flex items-center justify-center mx-auto mb-4">
+          <Trophy className="w-7 h-7 text-[#09090B]" />
         </div>
-
-        {/* Player Result Summary Card */}
-        {player && (
-          <Card className="text-center p-6 sm:p-8 bg-gradient-to-br from-[#121A30] to-[#0D1322] border-white/10 shadow-2xl">
-            <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-tr from-[#4F8EF7] to-[#39D98A] flex items-center justify-center text-white shadow-[0_0_25px_rgba(79,142,247,0.4)]">
-              <Trophy className="w-8 h-8" />
-            </div>
-            <h2 className="text-2xl font-black text-white mb-1">{player.nickname}</h2>
-            <p className="text-xs text-slate-400 mb-5">Спасибо за участие в научной викторине!</p>
-
-            <div className="grid grid-cols-2 gap-3.5 max-w-xs mx-auto">
-              <div className="bg-white/[0.04] p-3.5 rounded-2xl border border-white/[0.08]">
-                <span className="text-xs text-slate-400 block font-semibold mb-0.5">Место</span>
-                <span className="text-2xl sm:text-3xl font-black text-amber-300 font-mono">
-                  {myRank > 0 ? `#${myRank}` : '—'}
-                </span>
-              </div>
-              <div className="bg-white/[0.04] p-3.5 rounded-2xl border border-white/[0.08]">
-                <span className="text-xs text-slate-400 block font-semibold mb-0.5">Баллы</span>
-                <span className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
-                  {formatScore(player.score)}
-                </span>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Podium for top 3 */}
-        <Podium entries={leaderboard} />
-
-        {/* Full Leaderboard List */}
-        <div className="space-y-3">
-          <LeaderboardList
-            entries={leaderboard}
-            currentPlayerId={player?.id}
-            limit={10}
-          />
-        </div>
+        <h1 className="font-sans font-extrabold text-3xl sm:text-4xl text-white tracking-tight mb-2">
+          Финальные итоги
+        </h1>
+        <p className="text-sm text-[#71717A]">Викторина завершена</p>
       </div>
 
-      <div className="pt-10 pb-6 text-center">
+      {/* Личный результат */}
+      {player && (
+        <div className="rounded-2xl border border-white/[0.07] bg-[#111117] p-6 mb-8 flex flex-col sm:flex-row items-center gap-5">
+          <div className="w-14 h-14 rounded-xl bg-[#E8C547] flex items-center justify-center text-2xl font-extrabold text-[#09090B] shrink-0">
+            {player.nickname[0]?.toUpperCase()}
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <p className="font-bold text-white text-lg">{player.nickname}</p>
+            <p className="text-xs text-[#71717A] mt-0.5">Спасибо за участие!</p>
+          </div>
+          <div className="flex gap-4">
+            <div className="text-center">
+              <span className="text-xs text-[#71717A] block mb-0.5">Место</span>
+              <span className="font-mono font-bold text-xl text-[#E8C547] tabular-nums">
+                {myRank > 0 ? `#${myRank}` : '—'}
+              </span>
+            </div>
+            <div className="text-center">
+              <span className="text-xs text-[#71717A] block mb-0.5">Баллы</span>
+              <span className="font-mono font-bold text-xl text-emerald-400 tabular-nums">
+                {formatScore(player.score)}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Подиум */}
+      <Podium entries={leaderboard} />
+
+      {/* Лидерборд */}
+      <div className="mt-6">
+        <LeaderboardList entries={leaderboard} currentPlayerId={player?.id} limit={10} />
+      </div>
+
+      <div className="pt-10 text-center">
         <Link href="/">
-          <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+          <Button variant="secondary" size="lg">
             <Home className="w-4 h-4 mr-2" />
-            На главную страницу
+            На главную
           </Button>
         </Link>
       </div>

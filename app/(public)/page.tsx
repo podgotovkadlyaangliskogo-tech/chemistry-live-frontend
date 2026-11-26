@@ -1,168 +1,157 @@
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/frontend/components/ui/Button';
-import { GraduationCap, Zap } from 'lucide-react';
+import { GraduationCap, Zap, ChevronDown } from 'lucide-react';
+
+// Unsplash фото — chemistry lab с колбами (прямой CDN, без hotlinking violation)
+const HERO_PHOTO = 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1600&q=80&fit=crop';
+const LAB_PHOTO_1 = 'https://images.unsplash.com/photo-1628863353691-0071c8c1874c?w=800&q=80&fit=crop';
+const LAB_PHOTO_2 = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80&fit=crop';
+const LAB_PHOTO_3 = 'https://images.unsplash.com/photo-1576086213369-97a306d36557?w=800&q=80&fit=crop';
 
 export default function LandingPage() {
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex flex-col">
 
-      {/* ── HERO ───────────────────────────────────────────────── */}
-      <section className="relative flex flex-col items-center justify-center min-h-[88dvh] px-5 text-center overflow-hidden">
+      {/* ═══════════════════════════════════════════════════════
+          HERO — полный экран с фото лаборатории
+      ═══════════════════════════════════════════════════════ */}
+      <section className="relative min-h-dvh flex items-center justify-center overflow-hidden">
 
-        {/* Ambient: мягкое свечение янтаря сверху */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[720px] h-[320px] rounded-full blur-[120px] opacity-20"
-          style={{ background: 'radial-gradient(ellipse, #E8C547 0%, #9B7E1A 60%, transparent 100%)' }}
-        />
-        {/* Второй источник — синий снизу */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[200px] rounded-full blur-[100px] opacity-10"
-          style={{ background: 'radial-gradient(ellipse, #5B8FF9 0%, transparent 80%)' }}
-        />
-
-        {/* Метка */}
-        <span className="inline-flex items-center gap-2 mb-10 px-3.5 py-1.5 rounded-full text-xs font-mono text-[#E8C547]/80 border border-[#E8C547]/20 bg-[#E8C547]/5 tracking-widest uppercase">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E8C547] opacity-60" />
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#E8C547]" />
-          </span>
-          Живые викторины · Химия
-        </span>
-
-        {/* Заголовок */}
-        <h1
-          className="font-sans font-extrabold text-[clamp(2.6rem,8vw,6rem)] leading-[0.95] tracking-[-0.03em] text-balance mb-7"
-          style={{ textWrap: 'balance' } as React.CSSProperties}
-        >
-          Химия,{' '}
-          <span className="text-[#E8C547]">которую</span>
-          <br />
-          не забудешь
-        </h1>
-
-        <p className="max-w-[46ch] mx-auto text-[#71717A] text-[clamp(1rem,2.2vw,1.2rem)] leading-relaxed mb-12" style={{ textWrap: 'pretty' } as React.CSSProperties}>
-          Учитель запускает викторину — ученики отвечают со смартфонов.
-          Лидерборд, таймер, объяснения реакций — всё в реальном времени.
-        </p>
-
-        {/* CTA */}
-        <div className="flex flex-col sm:flex-row gap-3.5 w-full max-w-sm mx-auto">
-          <Link href="/play" className="flex-1">
-            <Button size="xl" className="w-full">
-              <Zap className="w-4 h-4 mr-2" />
-              Я ученик
-            </Button>
-          </Link>
-          <Link href="/teacher/login" className="flex-1">
-            <Button size="xl" variant="secondary" className="w-full">
-              <GraduationCap className="w-4 h-4 mr-2" />
-              Я учитель
-            </Button>
-          </Link>
+        {/* Фоновое фото */}
+        <div className="absolute inset-0">
+          <img
+            src={HERO_PHOTO}
+            alt="Chemistry laboratory"
+            className="w-full h-full object-cover object-center"
+          />
+          {/* Тёмный градиент поверх — делает текст читаемым */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#09090B]/75 via-[#09090B]/65 to-[#09090B]" />
+          {/* Дополнительный оверлей снизу */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-transparent to-transparent" />
         </div>
 
-        {/* Scroll hint */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30">
-          <div className="w-px h-10 bg-gradient-to-b from-transparent to-[#F5F4F0]" />
-        </div>
-      </section>
+        {/* Контент поверх фото */}
+        <div className="relative z-10 max-w-3xl mx-auto px-5 text-center pt-20 pb-32">
 
-      {/* ── ЦИФРЫ ──────────────────────────────────────────────── */}
-      <section className="border-y border-white/[0.06] py-16 px-5">
-        <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-px bg-white/[0.06]">
-          {[
-            { value: '20', label: 'вопросов', note: 'авторских' },
-            { value: '3', label: 'уровня', note: 'от базы до олимпа' },
-            { value: '<100мс', label: 'задержка', note: 'реального времени' },
-            { value: '0 сек', label: 'на вход', note: 'ученику без логина' },
-          ].map(({ value, label, note }) => (
-            <div key={label} className="bg-[#09090B] p-7 flex flex-col gap-1">
-              <span className="font-mono font-bold text-[clamp(1.6rem,4vw,2.4rem)] text-[#F5F4F0] leading-none tracking-tight">{value}</span>
-              <span className="text-sm font-semibold text-[#F5F4F0]/70">{label}</span>
-              <span className="text-xs text-[#71717A] mt-0.5">{note}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── УРОВНИ ─────────────────────────────────────────────── */}
-      <section className="py-24 px-5">
-        <div className="max-w-5xl mx-auto">
-          <div className="mb-14">
-            <p className="font-mono text-xs text-[#71717A] uppercase tracking-widest mb-3">Тематический блок</p>
-            <h2
-              className="font-sans font-extrabold text-[clamp(1.8rem,4vw,3rem)] leading-tight tracking-tight text-balance"
-              style={{ textWrap: 'balance' } as React.CSSProperties}
-            >
-              «Каучук и резина»
-            </h2>
-            <p className="text-[#71717A] mt-3 max-w-[52ch] text-sm leading-relaxed">
-              Охватывает школьную программу 10 класса, углублённый курс и олимпиадный уровень.
-            </p>
+          {/* Лейбл */}
+          <div className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-sm text-xs text-white/70 font-mono uppercase tracking-widest">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute h-full w-full rounded-full bg-[#E8C547] opacity-75" />
+              <span className="relative h-1.5 w-1.5 rounded-full bg-[#E8C547]" />
+            </span>
+            Органическая химия · 10–11 класс
           </div>
 
-          <div className="grid md:grid-cols-3 gap-5">
+          <h1 className="font-sans font-extrabold text-[clamp(2.8rem,8vw,5.5rem)] leading-[0.92] tracking-[-0.03em] text-white mb-6">
+            Химия, которую<br />
+            <span className="text-[#E8C547]">не забудешь</span>
+          </h1>
+
+          <p className="text-white/60 text-[clamp(1rem,2vw,1.2rem)] leading-relaxed max-w-[42ch] mx-auto mb-10">
+            Учитель запускает викторину — ученики отвечают со смартфонов.
+            Таймер, лидерборд, объяснения реакций — всё в реальном времени.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3.5 justify-center max-w-sm mx-auto">
+            <Link href="/play" className="flex-1">
+              <Button size="xl" className="w-full">
+                <Zap className="w-4 h-4 mr-2" />
+                Я ученик
+              </Button>
+            </Link>
+            <Link href="/teacher/login" className="flex-1">
+              <Button size="xl" variant="secondary" className="w-full text-white border-white/20 bg-white/10 hover:bg-white/20">
+                <GraduationCap className="w-4 h-4 mr-2" />
+                Я учитель
+              </Button>
+            </Link>
+          </div>
+
+          {/* Scroll hint */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-40">
+            <ChevronDown className="w-6 h-6 text-white" />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          ЦИФРЫ — на фоне #09090B (seamless переход от hero)
+      ═══════════════════════════════════════════════════════ */}
+      <section className="bg-[#09090B] py-20 px-5">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/[0.05] overflow-hidden rounded-2xl border border-white/[0.05]">
+            {[
+              { value: '20', label: 'авторских вопросов' },
+              { value: '3', label: 'уровня сложности' },
+              { value: '<100мс', label: 'задержка ответа' },
+              { value: '0 сек', label: 'на вход ученику' },
+            ].map(({ value, label }) => (
+              <div key={label} className="bg-[#09090B] px-6 py-8 flex flex-col gap-1.5">
+                <span className="font-mono font-bold text-[clamp(1.4rem,3vw,2rem)] text-[#E8C547] tabular-nums leading-none">
+                  {value}
+                </span>
+                <span className="text-xs text-[#71717A] leading-tight">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          КАК ЭТО РАБОТАЕТ — фото + текст в колонках
+      ═══════════════════════════════════════════════════════ */}
+      <section className="bg-[#09090B] py-24 px-5 border-t border-white/[0.05]">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-14">
+            <p className="font-mono text-xs text-[#71717A] uppercase tracking-widest mb-3">Как это работает</p>
+            <h2 className="font-sans font-extrabold text-[clamp(1.8rem,4vw,2.8rem)] leading-tight tracking-tight text-[#F5F4F0]">
+              Три шага до начала игры
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
             {[
               {
-                tier: 'Базовый',
-                count: '10 вопросов',
-                pts: '1000 pts',
-                time: '20 сек',
-                grade: '10 класс',
-                title: 'Строение и классификация',
-                body: 'Натуральный каучук (цис-1,4-полиизопрен), гуттаперча (транс-изомер), физические свойства, эластичность и мономер.',
-                accentBg: 'bg-emerald-500/8',
-                accentBorder: 'border-emerald-500/20',
-                accentText: 'text-emerald-400',
+                step: '01',
+                title: 'Учитель создаёт сессию',
+                body: 'Нажимает «Создать сессию» в своём кабинете — система генерирует уникальный 6-значный PIN-код.',
+                photo: LAB_PHOTO_1,
+                alt: 'Teacher at computer',
               },
               {
-                tier: 'Продвинутый',
-                count: '5 вопросов',
-                pts: '1500 pts',
-                time: '30 сек',
-                grade: '11 класс / ЕГЭ',
-                title: 'Вулканизация и синтез',
-                body: 'Дисульфидные мостики, метод Лебедева, эбонит (перевулканизация), сополимеры бутадиен-стирола.',
-                accentBg: 'bg-[#5B8FF9]/8',
-                accentBorder: 'border-[#5B8FF9]/20',
-                accentText: 'text-[#5B8FF9]',
+                step: '02',
+                title: 'Ученики подключаются',
+                body: 'Вводят PIN с любого телефона или планшета без установки приложений и регистрации.',
+                photo: LAB_PHOTO_3,
+                alt: 'Students with phones',
               },
               {
-                tier: 'Олимпиадный',
-                count: '5 вопросов',
-                pts: '2000 pts',
-                time: '45 сек',
-                grade: 'Олимпиады / ВУЗ',
-                title: 'Механизмы и катализ',
-                body: 'Катализаторы Циглера–Натта, стереорегулярность, свободнорадикальная и ионная полимеризация, озонолиз.',
-                accentBg: 'bg-[#E8C547]/8',
-                accentBorder: 'border-[#E8C547]/20',
-                accentText: 'text-[#E8C547]',
+                step: '03',
+                title: 'Игра идёт в реальном времени',
+                body: 'Таймер на экране, лидерборд обновляется после каждого вопроса, правильный ответ показывается с объяснением.',
+                photo: LAB_PHOTO_2,
+                alt: 'Chemistry quiz',
               },
-            ].map(({ tier, count, pts, time, grade, title, body, accentBg, accentBorder, accentText }) => (
-              <div
-                key={tier}
-                className={`rounded-2xl border ${accentBorder} ${accentBg} p-6 flex flex-col gap-4`}
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <span className={`text-xs font-mono font-bold uppercase tracking-widest ${accentText}`}>{tier}</span>
-                    <p className="text-[#71717A] text-xs mt-0.5">{count}</p>
-                  </div>
-                  <span className="font-mono text-xs text-[#71717A]">{pts}</span>
+            ].map(({ step, title, body, photo, alt }) => (
+              <div key={step} className="flex flex-col rounded-2xl overflow-hidden border border-white/[0.07] bg-[#111117]">
+                {/* Фото */}
+                <div className="relative h-44 overflow-hidden">
+                  <img
+                    src={photo}
+                    alt={alt}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#111117] to-transparent" />
+                  <span className="absolute top-3 left-3 font-mono text-xs font-bold text-[#E8C547]/70">
+                    {step}
+                  </span>
                 </div>
-
-                <div>
-                  <h3 className="font-sans font-bold text-base text-[#F5F4F0] leading-tight mb-2">{title}</h3>
+                {/* Текст */}
+                <div className="p-5 flex flex-col gap-2">
+                  <h3 className="font-sans font-bold text-base text-[#F5F4F0] leading-tight">{title}</h3>
                   <p className="text-xs text-[#71717A] leading-relaxed">{body}</p>
-                </div>
-
-                <div className={`mt-auto pt-4 border-t ${accentBorder} flex items-center justify-between text-xs text-[#71717A]`}>
-                  <span>{time} на ответ</span>
-                  <span className={accentText}>{grade}</span>
                 </div>
               </div>
             ))}
@@ -170,79 +159,111 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── ПРИМЕР ВОПРОСА ─────────────────────────────────────── */}
-      <section className="py-20 px-5 border-t border-white/[0.06]">
-        <div className="max-w-2xl mx-auto">
-          <p className="font-mono text-xs text-[#71717A] uppercase tracking-widest mb-8 text-center">Как это выглядит</p>
+      {/* ═══════════════════════════════════════════════════════
+          ТЕМЫ ВОПРОСОВ
+      ═══════════════════════════════════════════════════════ */}
+      <section className="bg-[#09090B] py-24 px-5 border-t border-white/[0.05]">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-14">
+            <p className="font-mono text-xs text-[#71717A] uppercase tracking-widest mb-3">Содержание</p>
+            <h2 className="font-sans font-extrabold text-[clamp(1.8rem,4vw,2.8rem)] leading-tight tracking-tight text-[#F5F4F0]">
+              «Каучук и резина»
+            </h2>
+            <p className="text-[#71717A] text-sm mt-2 max-w-[48ch]">
+              20 вопросов, охватывающих программу 10–11 класса и олимпиадный уровень.
+            </p>
+          </div>
 
-          {/* Mockup вопроса */}
-          <div className="rounded-2xl border border-white/[0.08] bg-[#111117] overflow-hidden">
-            {/* Chrome bar */}
-            <div className="border-b border-white/[0.06] px-5 py-3.5 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="font-mono text-[#5B8FF9] text-xs font-bold">Вопрос 4 / 20</span>
-                <span className="text-[#71717A] text-xs">Вулканизация</span>
-              </div>
-              <span className="font-mono text-xs text-[#E8C547] tabular-nums">18 сек</span>
-            </div>
-
-            <div className="p-6 sm:p-8">
-              <p className="text-[#F5F4F0] font-sans font-semibold text-base sm:text-lg leading-snug mb-6 text-center">
-                Какой химический элемент традиционно используется для вулканизации каучука с образованием резины?
-              </p>
-
-              <div className="grid grid-cols-2 gap-2.5 mb-6">
-                {[
-                  { letter: 'A', text: 'Фосфор (P)', color: '#E03A3E', correct: false },
-                  { letter: 'B', text: 'Хлор (Cl₂)', color: '#2D70F6', correct: false },
-                  { letter: 'C', text: 'Сера (S)', color: '#D9822B', correct: true },
-                  { letter: 'D', text: 'Азот (N₂)', color: '#10B981', correct: false },
-                ].map(({ letter, text, color, correct }) => (
-                  <div
-                    key={letter}
-                    className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold text-white transition-all ${correct ? 'ring-2 ring-emerald-400 ring-offset-1 ring-offset-[#111117]' : 'opacity-40'}`}
-                    style={{ backgroundColor: color + '99' }}
+          <div className="grid md:grid-cols-3 gap-4">
+            {[
+              {
+                tier: 'Базовый',
+                count: '10 вопросов',
+                pts: '1000 pts',
+                time: '20 сек',
+                grade: '10 класс',
+                body: 'Строение, классификация. Натуральный каучук, гуттаперча, мономеры.',
+                accent: '#1A9B6A',
+              },
+              {
+                tier: 'Продвинутый',
+                count: '5 вопросов',
+                pts: '1500 pts',
+                time: '30 сек',
+                grade: '11 класс / ЕГЭ',
+                body: 'Вулканизация серой, метод Лебедева, эбонит, сополимеры.',
+                accent: '#5B8FF9',
+              },
+              {
+                tier: 'Олимпиадный',
+                count: '5 вопросов',
+                pts: '2000 pts',
+                time: '45 сек',
+                grade: 'Олимпиады',
+                body: 'Катализаторы Циглера–Натта, стереорегулярность, озонолиз.',
+                accent: '#E8C547',
+              },
+            ].map(({ tier, count, pts, time, grade, body, accent }) => (
+              <div
+                key={tier}
+                className="rounded-2xl border p-5 bg-[#111117] flex flex-col gap-3"
+                style={{ borderColor: accent + '30' }}
+              >
+                <div className="flex items-center justify-between">
+                  <span
+                    className="text-xs font-mono font-bold uppercase tracking-widest"
+                    style={{ color: accent }}
                   >
-                    <span className="font-mono font-black text-xs opacity-70">{letter}</span>
-                    <span>{text}</span>
-                    {correct && <span className="ml-auto text-emerald-300 text-xs font-bold">✓</span>}
-                  </div>
-                ))}
+                    {tier}
+                  </span>
+                  <span className="font-mono text-xs text-[#71717A]">{pts}</span>
+                </div>
+                <p className="text-[#71717A] text-xs leading-relaxed flex-1">{body}</p>
+                <div
+                  className="pt-3 border-t flex items-center justify-between text-xs text-[#71717A]"
+                  style={{ borderColor: accent + '20' }}
+                >
+                  <span>{time} · {count}</span>
+                  <span style={{ color: accent }}>{grade}</span>
+                </div>
               </div>
-
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 text-xs text-[#71717A] leading-relaxed">
-                <span className="text-[#5B8FF9] font-semibold">Пояснение: </span>
-                Сера при нагревании образует поперечные дисульфидные мостики (–S–S–) между макромолекулами полиизопрена, превращая линейный полимер в пространственную сетку — резину.
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── ФИНАЛЬНЫЙ CTA ──────────────────────────────────────── */}
-      <section className="py-24 px-5 border-t border-white/[0.06]">
-        <div className="max-w-xl mx-auto text-center">
-          <h2
-            className="font-sans font-extrabold text-[clamp(2rem,5vw,3.5rem)] leading-tight tracking-tight mb-5 text-balance"
-            style={{ textWrap: 'balance' } as React.CSSProperties}
-          >
+      {/* ═══════════════════════════════════════════════════════
+          ФИНАЛЬНЫЙ CTA — снова фото-фон
+      ═══════════════════════════════════════════════════════ */}
+      <section className="relative py-32 px-5 overflow-hidden">
+        {/* Фото-фон */}
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1554475901-4538ddfbccc2?w=1600&q=80&fit=crop"
+            alt="Chemistry lab beakers"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[#09090B]/80" />
+        </div>
+
+        <div className="relative z-10 max-w-2xl mx-auto text-center">
+          <h2 className="font-sans font-extrabold text-[clamp(2rem,5vw,3.5rem)] leading-tight tracking-tight text-white mb-5">
             Запустите викторину прямо сейчас
           </h2>
-          <p className="text-[#71717A] text-sm leading-relaxed mb-10">
-            Создайте комнату — ученики подключаются за 10 секунд по PIN-коду с любого устройства.
+          <p className="text-white/50 text-sm leading-relaxed mb-10 max-w-[44ch] mx-auto">
+            Создайте комнату — ученики подключаются за 10 секунд с любого устройства по PIN-коду.
           </p>
-
           <div className="flex flex-col sm:flex-row gap-3.5 justify-center">
             <Link href="/teacher/login">
               <Button size="lg" className="w-full sm:w-auto">
                 <GraduationCap className="w-4 h-4 mr-2" />
-                Открыть панель учителя
+                Открыть кабинет учителя
               </Button>
             </Link>
             <Link href="/play">
-              <Button size="lg" variant="secondary" className="w-full sm:w-auto">
+              <Button size="lg" variant="secondary" className="w-full sm:w-auto text-white border-white/20 bg-white/10 hover:bg-white/20">
                 <Zap className="w-4 h-4 mr-2" />
-                Подключиться как ученик
+                Войти как ученик
               </Button>
             </Link>
           </div>

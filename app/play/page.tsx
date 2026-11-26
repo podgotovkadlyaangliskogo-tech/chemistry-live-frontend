@@ -10,10 +10,12 @@ import { NicknameInput } from '@/frontend/components/student/NicknameInput';
 import { ErrorMessage } from '@/frontend/components/ui/ErrorMessage';
 import { ArrowLeft } from 'lucide-react';
 
+// Unsplash: пробирки с цветными жидкостями
+const BG_PHOTO = 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1200&q=80&fit=crop';
+
 function JoinForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const [pin, setPin] = useState('');
   const [nickname, setNickname] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -21,103 +23,94 @@ function JoinForm() {
 
   useEffect(() => {
     const pinParam = searchParams.get('pin');
-    if (pinParam) {
-      setPin(pinParam.replace(/\D/g, '').slice(0, 6));
-    }
+    if (pinParam) setPin(pinParam.replace(/\D/g, '').slice(0, 6));
   }, [searchParams]);
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (pin.length !== 6) {
-      setError('PIN-код должен содержать ровно 6 цифр');
-      return;
-    }
-
-    if (nickname.trim().length < 2) {
-      setError('Никнейм должен содержать минимум 2 символа');
-      return;
-    }
-
+    if (pin.length !== 6) { setError('PIN должен содержать 6 цифр'); return; }
+    if (nickname.trim().length < 2) { setError('Никнейм — минимум 2 символа'); return; }
     try {
-      setIsLoading(true);
-      setError(null);
-
+      setIsLoading(true); setError(null);
       const res = await fetch('/api/players/join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          pin_code: pin,
-          nickname: nickname.trim(),
-        }),
+        body: JSON.stringify({ pin_code: pin, nickname: nickname.trim() }),
       });
-
       const data = await res.json();
-
-      if (!data.success) {
-        throw new Error(data.error || 'Не удалось присоединиться к комнате');
-      }
-
+      if (!data.success) throw new Error(data.error || 'Не удалось войти');
       const { session, player } = data.data;
       sessionStorage.setItem(`chemistry_player_${session.id}`, JSON.stringify(player));
       router.push(`/play/${session.id}/waiting`);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Ошибка подключения к комнате');
+      setError(err instanceof Error ? err.message : 'Ошибка подключения');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Card className="max-w-md w-full px-7 py-8 bg-[#111117] border border-white/[0.07] shadow-[0_24px_64px_rgba(0,0,0,0.6)]">
-      {/* Заголовок */}
-      <div className="mb-7">
-        <h1 className="font-sans font-extrabold text-2xl text-[#F5F4F0] tracking-tight leading-tight">
-          Вход в викторину
-        </h1>
-        <p className="text-sm text-[#71717A] mt-1.5 leading-relaxed">
-          Введи PIN-код с экрана учителя и придумай никнейм
-        </p>
+    <div className="relative min-h-dvh flex items-center justify-center px-4 py-10 overflow-hidden">
+      {/* Фото-фон */}
+      <div className="absolute inset-0">
+        <img src={BG_PHOTO} alt="" className="w-full h-full object-cover" aria-hidden />
+        <div className="absolute inset-0 bg-[#09090B]/75 backdrop-blur-[2px]" />
       </div>
 
-      {error && <ErrorMessage message={error} className="mb-5" />}
+      {/* Назад */}
+      <Link
+        href="/"
+        className="absolute top-5 left-5 z-10 flex items-center gap-1.5 text-xs text-white/50 hover:text-white transition-colors"
+      >
+        <ArrowLeft className="w-3.5 h-3.5" />
+        На главную
+      </Link>
 
-      <form onSubmit={handleJoin} className="space-y-5">
-        <PinInput value={pin} onChange={setPin} disabled={isLoading} />
-        <NicknameInput value={nickname} onChange={setNickname} disabled={isLoading} />
+      {/* Карточка */}
+      <div className="relative z-10 w-full max-w-sm">
+        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl px-7 py-8 shadow-2xl">
+          <div className="mb-7">
+            <h1 className="font-sans font-extrabold text-2xl text-white leading-tight">
+              Войти в игру
+            </h1>
+            <p className="text-sm text-white/50 mt-1.5">
+              PIN-код — на экране учителя
+            </p>
+          </div>
 
-        <Button
-          type="submit"
-          size="lg"
-          isLoading={isLoading}
-          disabled={pin.length !== 6 || nickname.trim().length < 2}
-          className="w-full mt-1"
-        >
-          Войти в игру
-        </Button>
-      </form>
+          {error && <ErrorMessage message={error} className="mb-5" />}
 
-      <p className="mt-6 text-center text-xs text-[#71717A]">
-        Без регистрации и пароля
-      </p>
-    </Card>
+          <form onSubmit={handleJoin} className="space-y-5">
+            <PinInput value={pin} onChange={setPin} disabled={isLoading} />
+            <NicknameInput value={nickname} onChange={setNickname} disabled={isLoading} />
+            <Button
+              type="submit"
+              size="lg"
+              isLoading={isLoading}
+              disabled={pin.length !== 6 || nickname.trim().length < 2}
+              className="w-full"
+            >
+              Присоединиться
+            </Button>
+          </form>
+
+          <p className="mt-5 text-center text-xs text-white/30">
+            Без регистрации и приложений
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 
 export default function StudentJoinPage() {
   return (
-    <div className="min-h-dvh flex flex-col justify-center items-center px-4 py-10 bg-[#09090B]">
-      <Link
-        href="/"
-        className="inline-flex items-center text-xs text-[#71717A] hover:text-[#F5F4F0] mb-6 transition-colors group"
-      >
-        <ArrowLeft className="w-3.5 h-3.5 mr-1.5 group-hover:-translate-x-0.5 transition-transform" />
-        На главную
-      </Link>
-
-      <Suspense fallback={<Card className="max-w-md w-full p-8 text-center text-[#71717A]">Загрузка...</Card>}>
-        <JoinForm />
-      </Suspense>
-    </div>
+    <Suspense fallback={
+      <div className="min-h-dvh flex items-center justify-center bg-[#09090B]">
+        <div className="text-white/40 text-sm">Загрузка...</div>
+      </div>
+    }>
+      <JoinForm />
+    </Suspense>
   );
 }
