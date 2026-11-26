@@ -1,65 +1,69 @@
 @import "tailwindcss";
 
 :root {
-  --bg-base: #0A0E1A;
+  --bg-base: #09090B;
   --bg-surface: rgba(255,255,255,0.04);
   --bg-surface-hover: rgba(255,255,255,0.08);
-  --border: rgba(255,255,255,0.1);
-  --text-primary: #F0F4FF;
-  --text-secondary: #8B9ABF;
-  --brand-blue: #4F8EF7;
-  --brand-green: #39D98A;
-  --brand-amber: #FFB800;
-  --brand-red: #FF4757;
+  --border: rgba(255,255,255,0.08);
+  --text-primary: #F5F4F0;
+  --text-secondary: #71717A;
+  --brand-amber: #E8C547;
+  --brand-blue: #5B8FF9;
+  --brand-green: #34D399;
+  --brand-red: #F87171;
 }
 
 body {
+  /* Плоский фон без дорогих radial-gradient — экономим GPU */
   background: var(--bg-base);
-  background-image:
-    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(79, 142, 247, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 90% 100%, rgba(57, 217, 138, 0.08) 0%, transparent 50%);
   min-height: 100dvh;
   color: var(--text-primary);
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Текстовый рендеринг */
+  text-rendering: optimizeLegibility;
 }
 
-/* Glass card effect */
+/* ── Стеклянные карточки ───────────────────────────────── */
 .glass {
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.1);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
-/* Neon glow utility */
-.glow-blue { box-shadow: 0 0 20px rgba(79,142,247,0.4); }
-.glow-green { box-shadow: 0 0 20px rgba(57,217,138,0.4); }
-.glow-amber { box-shadow: 0 0 20px rgba(255,184,0,0.4); }
-.glow-red   { box-shadow: 0 0 20px rgba(255,71,87,0.4); }
-
-/* Animated gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #4F8EF7 0%, #39D98A 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* ── GPU-слои для анимированных элементов ─────────────── */
+/* Только там где реально есть transform/opacity анимации */
+.will-animate {
+  will-change: transform, opacity;
 }
 
-/* Pulsing dot animation */
+/* ── Анимации ─────────────────────────────────────────── */
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(0.85); }
 }
 .pulse-dot {
   animation: pulse-dot 2s ease-in-out infinite;
+  will-change: opacity, transform;
 }
 
-/* Floating animation for decorative elements */
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-12px) rotate(3deg); }
-  66% { transform: translateY(-6px) rotate(-2deg); }
+/* contain: layout paint — сокращает площадь repaint для fixed/sticky */
+.contain-paint {
+  contain: layout paint;
 }
-.float { animation: float 7s ease-in-out infinite; }
-.float-delay { animation: float 9s ease-in-out infinite 2s; }
-.float-slow { animation: float 11s ease-in-out infinite 1s; }
+
+/* Gradient text утилита */
+.gradient-text {
+  background: linear-gradient(135deg, #E8C547 0%, #f0d060 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Neon glow — используем только там где нужно */
+.glow-amber { box-shadow: 0 0 20px rgba(232,197,71,0.35); }
+.glow-blue  { box-shadow: 0 0 20px rgba(91,143,249,0.35); }
+.glow-green { box-shadow: 0 0 20px rgba(52,211,153,0.35); }
+.glow-red   { box-shadow: 0 0 20px rgba(248,113,113,0.35); }

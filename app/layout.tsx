@@ -28,6 +28,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru" className={`${syne.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        {/* Preconnect — сокращает DNS+TCP время для Unsplash CDN и Supabase */}
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body className="min-h-screen bg-[#09090B] text-[#F5F4F0] antialiased selection:bg-[#E8C547]/25 selection:text-[#F5F4F0]">
         {children}
       </body>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { GameSession } from '@/shared/types/game.types';
 import { Player, PlayerAnswer, LeaderboardEntry } from '@/shared/types/player.types';
 import { QuestionWithCorrectAnswer } from '@/shared/types/quiz.types';
@@ -16,12 +16,20 @@ export function useGameSession(sessionId: string) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // AbortController ref — отменяем in-flight fetch при размонтировании / смене sessionId
+  const abortRef = useRef<AbortController | null>(null);
+
   const fetchSession = useCallback(async () => {
+    // Отменяем предыдущий запрос если он ещё выполняется
+    if (abortRef.current) abortRef.current.abort();
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+
     try {
       setIsLoading(true);
       setError(null);
 
-      const res = await fetch(`/api/sessions/${sessionId}`);
+      const res = await fetch(`/api/sessions/${sessionId}`, { signal: ctrl.signal });
       const data = await res.json();
 
       if (!data.success) {
@@ -32,8 +40,8 @@ export function useGameSession(sessionId: string) {
       setActiveQuestion(data.data.activeQuestion || null);
       setTotalQuestions(data.data.totalQuestions || 0);
 
-      // Load players
-      const lbRes = await fetch(`/api/leaderboard/${sessionId}`);
+      // Load players — параллельно с основным fetch
+      const lbRes = await fetch(`/api/leaderboard/${sessionId}`, { signal: ctrl.signal });
       const lbData = await lbRes.json();
       if (lbData.success) {
         const pList: Player[] = (lbData.data.leaderboard || []).map((entry: LeaderboardEntry) => ({
@@ -49,6 +57,8 @@ export function useGameSession(sessionId: string) {
         setPlayers(pList);
       }
     } catch (err: unknown) {
+      // AbortError — не показываем как ошибку (нормальное поведение при размонтировании)
+      if (err instanceof Error && err.name === 'AbortError') return;
       setError(err instanceof Error ? err.message : 'Ошибка подключения');
     } finally {
       setIsLoading(false);
@@ -57,6 +67,8 @@ export function useGameSession(sessionId: string) {
 
   useEffect(() => {
     fetchSession();
+    // Cleanup: отменяем запрос при размонтировании
+    return () => { abortRef.current?.abort(); };
   }, [fetchSession]);
 
   // Realtime subscription

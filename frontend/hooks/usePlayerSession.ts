@@ -44,9 +44,15 @@ export function usePlayerSession(sessionId: string) {
     }
   }, [sessionId]);
 
+  // AbortController — отменяем fetch при размонтировании / смене sessionId
+  const abortRef = useRef<AbortController | null>(null);
+
   const fetchSession = useCallback(async () => {
+    if (abortRef.current) abortRef.current.abort();
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
     try {
-      const res = await fetch(`/api/sessions/${sessionId}`);
+      const res = await fetch(`/api/sessions/${sessionId}`, { signal: ctrl.signal });
       const data = await res.json();
       if (data.success) {
         setSession(data.data.session);
@@ -55,8 +61,10 @@ export function usePlayerSession(sessionId: string) {
         // Seed ref so the first realtime update compares against the actual current question
         prevQuestionIdRef.current = data.data.session?.current_question_id ?? null;
       }
-    } catch {
-      // Fail silently — не ставим error state чтобы не ломать порядок хуков в рендере
+    } catch (err: unknown) {
+      // AbortError — нормальное поведение при размонтировании, не показываем ошибку
+      if (err instanceof Error && err.name === 'AbortError') return;
+      // Fail silently для остальных — не ставим error state чтобы не ломать порядок хуков в рендере
     } finally {
       setIsLoading(false);
     }
@@ -64,6 +72,7 @@ export function usePlayerSession(sessionId: string) {
 
   useEffect(() => {
     fetchSession();
+    return () => { abortRef.current?.abort(); };
   }, [fetchSession]);
 
   // Realtime updates

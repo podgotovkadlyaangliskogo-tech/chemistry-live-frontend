@@ -5,10 +5,11 @@ import { Button } from '@/frontend/components/ui/Button';
 import { GraduationCap, Zap, ChevronDown } from 'lucide-react';
 
 // Unsplash фото — chemistry lab с колбами (прямой CDN, без hotlinking violation)
-const HERO_PHOTO = 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1600&q=80&fit=crop';
-const LAB_PHOTO_1 = 'https://images.unsplash.com/photo-1628863353691-0071c8c1874c?w=800&q=80&fit=crop';
-const LAB_PHOTO_2 = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80&fit=crop';
-const LAB_PHOTO_3 = 'https://images.unsplash.com/photo-1576086213369-97a306d36557?w=800&q=80&fit=crop';
+const HERO_PHOTO = 'https://images.unsplash.com/photo-1532094349884-543bc11b234d';
+const LAB_PHOTO_1 = 'https://images.unsplash.com/photo-1628863353691-0071c8c1874c';
+const LAB_PHOTO_2 = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d';
+const LAB_PHOTO_3 = 'https://images.unsplash.com/photo-1576086213369-97a306d36557';
+const CTA_PHOTO = 'https://images.unsplash.com/photo-1554475901-4538ddfbccc2';
 
 export default function LandingPage() {
   return (
@@ -19,12 +20,17 @@ export default function LandingPage() {
       ═══════════════════════════════════════════════════════ */}
       <section className="relative min-h-dvh flex items-center justify-center overflow-hidden">
 
-        {/* Фоновое фото */}
+        {/* Фоновое фото — priority: LCP element, загружается первым */}
         <div className="absolute inset-0">
-          <img
+          <Image
             src={HERO_PHOTO}
             alt="Chemistry laboratory"
-            className="w-full h-full object-cover object-center"
+            fill
+            priority
+            fetchPriority="high"
+            quality={80}
+            sizes="100vw"
+            className="object-cover object-center"
           />
           {/* Тёмный градиент поверх — делает текст читаемым */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#09090B]/75 via-[#09090B]/65 to-[#09090B]" />
@@ -138,10 +144,13 @@ export default function LandingPage() {
               <div key={step} className="flex flex-col rounded-2xl overflow-hidden border border-white/[0.07] bg-[#111117]">
                 {/* Фото */}
                 <div className="relative h-44 overflow-hidden">
-                  <img
+                  <Image
                     src={photo}
                     alt={alt}
-                    className="w-full h-full object-cover"
+                    fill
+                    quality={75}
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#111117] to-transparent" />
                   <span className="absolute top-3 left-3 font-mono text-xs font-bold text-[#E8C547]/70">
@@ -238,10 +247,13 @@ export default function LandingPage() {
       <section className="relative py-32 px-5 overflow-hidden">
         {/* Фото-фон */}
         <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1554475901-4538ddfbccc2?w=1600&q=80&fit=crop"
+          <Image
+            src={CTA_PHOTO}
             alt="Chemistry lab beakers"
-            className="w-full h-full object-cover"
+            fill
+            quality={70}
+            sizes="100vw"
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-[#09090B]/80" />
         </div>
