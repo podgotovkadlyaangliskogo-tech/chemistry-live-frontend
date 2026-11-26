@@ -50,6 +50,7 @@ export default function TeacherLobbyPage({ params }: LobbyPageProps) {
   const handleStart = async () => {
     try {
       setIsStarting(true);
+      // ✅ FIX: сначала POST, потом мгновенный роутер — не ждём fetchSession
       await startGame();
       router.push(`/teacher/session/${sessionId}/game`);
     } catch { setIsStarting(false); }
@@ -79,8 +80,37 @@ export default function TeacherLobbyPage({ params }: LobbyPageProps) {
 
   if (isLoading && !session) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#09090B]">
-        <LoadingSpinner label="Подготовка комнаты..." size="lg" />
+      <div className="min-h-screen bg-[#09090B] text-[#F5F4F0] flex flex-col">
+        {/* Skeleton header */}
+        <header className="border-b border-white/[0.06] bg-[#09090B]/90 backdrop-blur-xl">
+          <div className="max-w-5xl mx-auto px-5 h-14 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white/[0.06] animate-pulse" />
+              <div className="flex items-center gap-2">
+                <div className="w-14 h-4 rounded bg-white/[0.06] animate-pulse" />
+                <div className="w-16 h-5 rounded-md bg-[#E8C547]/10 animate-pulse" />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <div className="w-24 h-8 rounded-lg bg-white/[0.06] animate-pulse" />
+              <div className="w-28 h-8 rounded-lg bg-[#E8C547]/20 animate-pulse" />
+            </div>
+          </div>
+        </header>
+        <main className="max-w-5xl mx-auto px-5 py-8 flex-1 grid md:grid-cols-3 gap-6">
+          <div className="md:col-span-2 rounded-2xl border border-white/[0.07] bg-[#111117] p-7 flex flex-col gap-5">
+            <div className="w-32 h-3 rounded bg-white/[0.06] animate-pulse" />
+            <div className="w-48 h-20 rounded-xl bg-[#E8C547]/10 animate-pulse" />
+            <div className="w-40 h-3 rounded bg-white/[0.06] animate-pulse" />
+          </div>
+          <div className="rounded-2xl border border-white/[0.07] bg-[#111117] p-6 flex items-center justify-center">
+            <div className="w-40 h-40 rounded-xl bg-white/[0.06] animate-pulse" />
+          </div>
+          <div className="md:col-span-3 rounded-2xl border border-white/[0.07] bg-[#111117] p-6">
+            <div className="w-28 h-4 rounded bg-white/[0.06] animate-pulse mb-4" />
+            <div className="text-center py-8 text-sm text-[#71717A]">Ожидаем игроков...</div>
+          </div>
+        </main>
       </div>
     );
   }

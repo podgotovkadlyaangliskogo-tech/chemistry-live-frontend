@@ -48,16 +48,20 @@ export default function StudentGamePage({ params }: StudentGameProps) {
   }, [player, isLoading, isKicked, router]);
 
   const handleSelectOption = async (optionId: string) => {
+    // Блокируем только если уже ответили или уже отправляется этот же выбор
     if (hasAnswered || isSubmitting || session?.status !== 'question_active') return;
+    // Оптимистичный UI: мгновенно показываем выбор ДО сетевого запроса
+    setSelectedOptionId(optionId);
+    setIsSubmitting(true);
+    setSubmitError(null);
     try {
-      setSelectedOptionId(optionId);
-      setIsSubmitting(true);
-      setSubmitError(null);
       const startTime = session.question_start_time
         ? new Date(session.question_start_time).getTime()
         : Date.now() - 1000;
       await submitAnswer(optionId, Math.max(0, Date.now() - startTime));
     } catch (err: unknown) {
+      // При ошибке сбрасываем выбор чтобы дать повторить
+      setSelectedOptionId(null);
       setSubmitError(err instanceof Error ? err.message : 'Не удалось отправить ответ');
     } finally {
       setIsSubmitting(false);
@@ -193,7 +197,9 @@ export default function StudentGamePage({ params }: StudentGameProps) {
                   isSelected={isSelected}
                   isRevealed={isRevealed}
                   isCorrect={isCorrect}
-                  disabled={hasAnswered || session.status !== 'question_active'}
+                  // ✅ FIX: disabled только после того как ответ принят (hasAnswered),
+                  // НЕ блокируем при isSubmitting — UI уже показывает выбор оптимистично
+                  disabled={hasAnswered || isRevealed || session.status !== 'question_active'}
                   onClick={() => handleSelectOption(option.id)}
                 />
               );

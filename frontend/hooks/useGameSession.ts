@@ -16,11 +16,9 @@ export function useGameSession(sessionId: string) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // AbortController ref — отменяем in-flight fetch при размонтировании / смене sessionId
   const abortRef = useRef<AbortController | null>(null);
 
   const fetchSession = useCallback(async () => {
-    // Отменяем предыдущий запрос если он ещё выполняется
     if (abortRef.current) abortRef.current.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -29,20 +27,19 @@ export function useGameSession(sessionId: string) {
       setIsLoading(true);
       setError(null);
 
-      const res = await fetch(`/api/sessions/${sessionId}`, { signal: ctrl.signal });
-      const data = await res.json();
+      // ✅ FIX: оба запроса параллельно — экономим ~200-400ms
+      const [res, lbRes] = await Promise.all([
+        fetch(`/api/sessions/${sessionId}`, { signal: ctrl.signal }),
+        fetch(`/api/leaderboard/${sessionId}`, { signal: ctrl.signal }),
+      ]);
+      const [data, lbData] = await Promise.all([res.json(), lbRes.json()]);
 
-      if (!data.success) {
-        throw new Error(data.error || 'Ошибка загрузки сессии');
-      }
+      if (!data.success) throw new Error(data.error || 'Ошибка загрузки сессии');
 
       setSession(data.data.session);
       setActiveQuestion(data.data.activeQuestion || null);
       setTotalQuestions(data.data.totalQuestions || 0);
 
-      // Load players — параллельно с основным fetch
-      const lbRes = await fetch(`/api/leaderboard/${sessionId}`, { signal: ctrl.signal });
-      const lbData = await lbRes.json();
       if (lbData.success) {
         const pList: Player[] = (lbData.data.leaderboard || []).map((entry: LeaderboardEntry) => ({
           id: entry.playerId,
@@ -57,7 +54,6 @@ export function useGameSession(sessionId: string) {
         setPlayers(pList);
       }
     } catch (err: unknown) {
-      // AbortError — не показываем как ошибку (нормальное поведение при размонтировании)
       if (err instanceof Error && err.name === 'AbortError') return;
       setError(err instanceof Error ? err.message : 'Ошибка подключения');
     } finally {
@@ -67,7 +63,6 @@ export function useGameSession(sessionId: string) {
 
   useEffect(() => {
     fetchSession();
-    // Cleanup: отменяем запрос при размонтировании
     return () => { abortRef.current?.abort(); };
   }, [fetchSession]);
 
@@ -75,9 +70,10 @@ export function useGameSession(sessionId: string) {
   useRealtime(sessionId, {
     onSessionUpdate: (updated) => {
       setSession((prev) => {
-        // Сбрасывать счётчик ответов при смене вопроса (баг 6 фикс)
         if (prev && prev.current_question_id !== updated.current_question_id) {
           setAnswersCount(0);
+          // ✅ FIX: при смене вопроса рефетчим в фоне чтобы получить activeQuestion
+          fetchSession();
         }
         return updated;
       });
@@ -105,7 +101,8 @@ export function useGameSession(sessionId: string) {
     const res = await fetch(`/api/sessions/${sessionId}/start`, { method: 'POST' });
     const data = await res.json();
     if (!data.success) throw new Error(data.error);
-    await fetchSession();
+    // ✅ FIX: не ждём fetchSession — Realtime обновит session, рефетч в фоне
+    fetchSession();
   };
 
   const advanceQuestion = async (action: 'next' | 'reveal' | 'leaderboard') => {
@@ -116,14 +113,15 @@ export function useGameSession(sessionId: string) {
     });
     const data = await res.json();
     if (!data.success) throw new Error(data.error);
-    await fetchSession();
+    // ✅ FIX: не await — рефетч идёт в фоне пока UI уже разблокировался
+    fetchSession();
   };
 
   const endGame = async () => {
     const res = await fetch(`/api/sessions/${sessionId}/end`, { method: 'POST' });
     const data = await res.json();
     if (!data.success) throw new Error(data.error);
-    await fetchSession();
+    fetchSession();
   };
 
   const kickPlayer = async (playerId: string) => {
