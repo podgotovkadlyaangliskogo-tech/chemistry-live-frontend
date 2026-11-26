@@ -23,6 +23,9 @@ export function usePlayerSession(sessionId: string) {
   const [isKicked, setIsKicked] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  // Счётчик ответивших игроков
+  const [answersCount, setAnswersCount] = useState<number>(0);
+  const [totalPlayers, setTotalPlayers] = useState<number>(0);
 
   // Refs for realtime callbacks to avoid stale closures
   const prevQuestionIdRef = useRef<string | null | undefined>(null);
@@ -58,6 +61,10 @@ export function usePlayerSession(sessionId: string) {
         setSession(data.data.session);
         setActiveQuestion(data.data.activeQuestion || null);
         setTotalQuestions(data.data.totalQuestions || 0);
+        // Количество игроков из players[]
+        if (Array.isArray(data.data.players)) {
+          setTotalPlayers(data.data.players.length);
+        }
         // Seed ref so the first realtime update compares against the actual current question
         prevQuestionIdRef.current = data.data.session?.current_question_id ?? null;
       }
@@ -83,6 +90,8 @@ export function usePlayerSession(sessionId: string) {
         setHasAnswered(false);
         setLastAnswerResult(null);
         setCorrectOptionId(null);
+        // Сбрасываем счётчик ответов при смене вопроса
+        setAnswersCount(0);
         // Рефетчим сессию чтобы получить новый activeQuestion
         fetch(`/api/sessions/${sessionId}`)
           .then((r) => r.json())
@@ -90,6 +99,10 @@ export function usePlayerSession(sessionId: string) {
             if (data.success) {
               setActiveQuestion(data.data.activeQuestion || null);
               setTotalQuestions(data.data.totalQuestions || 0);
+              // Обновляем totalPlayers из leaderboard-данных
+              if (Array.isArray(data.data.players)) {
+                setTotalPlayers(data.data.players.length);
+              }
             }
           })
           .catch(() => {});
@@ -120,6 +133,10 @@ export function usePlayerSession(sessionId: string) {
           sessionStorage.setItem(`chemistry_player_${sessionId}`, JSON.stringify(updatedPlayer));
         } catch {}
       }
+    },
+    onAnswerSubmitted: () => {
+      // Инкрементируем счётчик ответивших при каждом realtime-событии ответа
+      setAnswersCount((prev) => prev + 1);
     },
     onPlayerLeft: (kickedPlayerId) => {
       // Если ведущий исключил текущего игрока
@@ -197,5 +214,7 @@ export function usePlayerSession(sessionId: string) {
     error,
     submitAnswer,
     registerPlayer,
+    answersCount,
+    totalPlayers,
   };
 }

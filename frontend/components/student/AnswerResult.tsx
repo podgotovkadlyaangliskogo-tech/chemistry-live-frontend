@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CheckCircle2, XCircle, Flame, Clock } from 'lucide-react';
 import { formatScore } from '@/frontend/lib/formatting';
+import { useCountUp } from '@/frontend/hooks/useCountUp';
 
 export interface AnswerResultProps {
   isRevealed: boolean;
@@ -19,6 +20,9 @@ export const AnswerResult: React.FC<AnswerResultProps> = ({
   streak = 0,
   newScore,
 }) => {
+  // Анимируем итоговый счёт
+  const animScore = useCountUp(newScore ?? 0, 1000);
+
   // If answered but question is not revealed yet
   if (!isRevealed) {
     return (
@@ -28,7 +32,7 @@ export const AnswerResult: React.FC<AnswerResultProps> = ({
         </div>
         <h3 className="text-lg font-black text-white mb-1">Ответ принят!</h3>
         <p className="text-xs sm:text-sm text-slate-400">
-          Ждем остальных участников и раскрытие правильного ответа
+          Ждём остальных участников и раскрытие правильного ответа
         </p>
       </div>
     );
@@ -62,8 +66,11 @@ export const AnswerResult: React.FC<AnswerResultProps> = ({
 
       {/* Points & Streak Badges */}
       <div className="flex items-center justify-center gap-3 flex-wrap">
-        {isCorrect && (
-          <span className="text-xl sm:text-2xl font-black font-mono px-4 py-1.5 rounded-2xl bg-[#39D98A]/20 text-[#39D98A] border border-[#39D98A]/30 shadow-[0_0_15px_rgba(57,217,138,0.4)]">
+        {isCorrect && pointsAwarded > 0 && (
+          <span className="text-xl sm:text-2xl font-black font-mono px-4 py-1.5 rounded-2xl
+                           bg-[#39D98A]/20 text-[#39D98A] border border-[#39D98A]/30
+                           shadow-[0_0_15px_rgba(57,217,138,0.4)]
+                           animate-[pointsPop_0.5s_cubic-bezier(0.34,1.56,0.64,1)_forwards]">
             +{formatScore(pointsAwarded)} pts
           </span>
         )}
@@ -76,12 +83,12 @@ export const AnswerResult: React.FC<AnswerResultProps> = ({
         )}
       </div>
 
-      {/* Total Score */}
+      {/* Total Score — анимированный */}
       {newScore !== undefined && (
         <p className="mt-4 text-xs sm:text-sm font-semibold text-slate-400">
-          Твой общий счет:{' '}
+          Твой общий счёт:{' '}
           <span className="font-black font-mono text-base text-white ml-1">
-            {formatScore(newScore)}
+            {formatScore(animScore)}
           </span>
         </p>
       )}

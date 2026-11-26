@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use, useState, useEffect } from 'react';
+import React, { use, useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LoadingSpinner } from '@/frontend/components/ui/LoadingSpinner';
@@ -12,7 +12,8 @@ import { CountdownTimer } from '@/frontend/components/quiz/CountdownTimer';
 import { QuestionProgress } from '@/frontend/components/quiz/QuestionProgress';
 import { AnswerResult } from '@/frontend/components/student/AnswerResult';
 import { usePlayerSession } from '@/frontend/hooks/usePlayerSession';
-import { Flame, UserX } from 'lucide-react';
+import { useCountUp } from '@/frontend/hooks/useCountUp';
+import { Flame, UserX, Users } from 'lucide-react';
 import { formatScore } from '@/frontend/lib/formatting';
 
 interface StudentGameProps {
@@ -27,11 +28,29 @@ export default function StudentGamePage({ params }: StudentGameProps) {
     player, session, activeQuestion, totalQuestions,
     hasAnswered, lastAnswerResult, correctOptionId,
     isKicked, isLoading, error, submitAnswer,
+    answersCount, totalPlayers,
   } = usePlayerSession(sessionId);
 
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // ── Animated score ───────────────────────────────────────────
+  const animatedScore = useCountUp(player?.score ?? 0, 700);
+
+  // +N бонус флэш над счётом
+  const [bonusFlash, setBonusFlash] = useState<number | null>(null);
+  const bonusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (lastAnswerResult?.points_awarded && lastAnswerResult.points_awarded > 0) {
+      setBonusFlash(lastAnswerResult.points_awarded);
+      if (bonusTimerRef.current) clearTimeout(bonusTimerRef.current);
+      bonusTimerRef.current = setTimeout(() => setBonusFlash(null), 1800);
+    }
+    return () => {
+      if (bonusTimerRef.current) clearTimeout(bonusTimerRef.current);
+    };
+  }, [lastAnswerResult]);
 
   useEffect(() => {
     setSelectedOptionId(null);
@@ -48,9 +67,7 @@ export default function StudentGamePage({ params }: StudentGameProps) {
   }, [player, isLoading, isKicked, router]);
 
   const handleSelectOption = async (optionId: string) => {
-    // Блокируем только если уже ответили или уже отправляется этот же выбор
     if (hasAnswered || isSubmitting || session?.status !== 'question_active') return;
-    // Оптимистичный UI: мгновенно показываем выбор ДО сетевого запроса
     setSelectedOptionId(optionId);
     setIsSubmitting(true);
     setSubmitError(null);
@@ -60,7 +77,6 @@ export default function StudentGamePage({ params }: StudentGameProps) {
         : Date.now() - 1000;
       await submitAnswer(optionId, Math.max(0, Date.now() - startTime));
     } catch (err: unknown) {
-      // При ошибке сбрасываем выбор чтобы дать повторить
       setSelectedOptionId(null);
       setSubmitError(err instanceof Error ? err.message : 'Не удалось отправить ответ');
     } finally {
@@ -99,6 +115,23 @@ export default function StudentGamePage({ params }: StudentGameProps) {
 
   const isRevealed = session.status === 'question_review' || session.status === 'leaderboard';
 
+  // Скелетон карточки вопроса (пока activeQuestion ещё грузится)
+  const questionSkeleton = (
+    <div className="w-full rounded-2xl bg-[#111117] border border-white/[0.07] p-6 animate-pulse">
+      <div className="h-5 bg-white/[0.06] rounded-lg w-3/4 mb-3" />
+      <div className="h-5 bg-white/[0.06] rounded-lg w-1/2" />
+    </div>
+  );
+
+  // Скелетон кнопок ответов
+  const answersSkeleton = (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="h-16 rounded-2xl bg-[#111117] border border-white/[0.07] animate-pulse" />
+      ))}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-[#09090B] text-white flex flex-col">
       {/* ── HEADER ─────────────────────────── */}
@@ -124,10 +157,20 @@ export default function StudentGamePage({ params }: StudentGameProps) {
               {player.streak}
             </div>
           )}
-          <div className="text-right bg-white/[0.04] border border-white/[0.06] px-3 py-1.5 rounded-xl">
+          <div className="relative text-right bg-white/[0.04] border border-white/[0.06] px-3 py-1.5 rounded-xl">
+            {/* +N флэш над счётом */}
+            {bonusFlash !== null && (
+              <span
+                key={bonusFlash + Date.now()}
+                className="absolute -top-6 right-0 text-xs font-black font-mono text-emerald-400
+                           animate-[scoreBonus_1.8s_ease-out_forwards] pointer-events-none select-none"
+              >
+                +{formatScore(bonusFlash)}
+              </span>
+            )}
             <span className="text-[10px] text-[#71717A] block uppercase tracking-wider">Счёт</span>
             <span className="font-mono font-bold text-sm text-emerald-400 tabular-nums">
-              {formatScore(player?.score || 0)}
+              {formatScore(animatedScore)}
             </span>
           </div>
         </div>
@@ -135,7 +178,7 @@ export default function StudentGamePage({ params }: StudentGameProps) {
 
       {/* ── MAIN ───────────────────────────── */}
       <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 py-5 gap-4">
-        {/* Прогресс + таймер */}
+        {/* Прогресс + таймер + счётчик ответивших */}
         <div className="flex items-center justify-between gap-4 bg-[#111117] border border-white/[0.07] rounded-2xl p-4">
           <div className="flex-1">
             <QuestionProgress
@@ -145,28 +188,41 @@ export default function StudentGamePage({ params }: StudentGameProps) {
               points={activeQuestion?.points}
             />
           </div>
-          {session.status === 'question_active' && activeQuestion && (
-            <div className="shrink-0">
+
+          <div className="flex items-center gap-3 shrink-0">
+            {/* Счётчик ответивших */}
+            {session.status === 'question_active' && totalPlayers > 0 && (
+              <div className="flex items-center gap-1.5 text-xs font-mono font-semibold
+                              text-[#71717A] bg-white/[0.03] border border-white/[0.06]
+                              px-2.5 py-1 rounded-lg">
+                <Users className="w-3 h-3" />
+                <span className={answersCount > 0 ? 'text-emerald-400' : ''}>
+                  {answersCount}/{totalPlayers}
+                </span>
+              </div>
+            )}
+
+            {session.status === 'question_active' && activeQuestion && (
               <CountdownTimer
                 startTime={session.question_start_time}
                 timeLimitSeconds={activeQuestion.time_limit_seconds}
                 size="sm"
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {submitError && <ErrorMessage message={submitError} />}
 
-        {/* Вопрос */}
-        {activeQuestion && (
+        {/* Вопрос — сразу скелетон если грузится */}
+        {activeQuestion ? (
           <QuestionCard
             text={activeQuestion.text}
             explanation={activeQuestion.explanation}
             imageUrl={activeQuestion.image_url}
             isRevealed={isRevealed}
           />
-        )}
+        ) : session.status === 'question_active' ? questionSkeleton : null}
 
         {/* Результат ответа */}
         {(hasAnswered || isRevealed) && (
@@ -179,8 +235,8 @@ export default function StudentGamePage({ params }: StudentGameProps) {
           />
         )}
 
-        {/* 4 кнопки ответов */}
-        {activeQuestion && (
+        {/* 4 кнопки ответов — скелетон пока грузится */}
+        {activeQuestion ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {activeQuestion.options.map((option, idx) => {
               const isSelected = selectedOptionId === option.id;
@@ -197,15 +253,13 @@ export default function StudentGamePage({ params }: StudentGameProps) {
                   isSelected={isSelected}
                   isRevealed={isRevealed}
                   isCorrect={isCorrect}
-                  // ✅ FIX: disabled только после того как ответ принят (hasAnswered),
-                  // НЕ блокируем при isSubmitting — UI уже показывает выбор оптимистично
                   disabled={hasAnswered || isRevealed || session.status !== 'question_active'}
                   onClick={() => handleSelectOption(option.id)}
                 />
               );
             })}
           </div>
-        )}
+        ) : session.status === 'question_active' ? answersSkeleton : null}
       </main>
 
       <footer className="pb-5 text-center text-xs text-[#71717A]">
